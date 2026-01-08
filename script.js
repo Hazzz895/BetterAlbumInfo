@@ -88,7 +88,7 @@
         "alternative": {g:"Альтернатив", s:"m"},
         "edmgenre": {g:"EDM", s:"m"},
         "dance": {g:"Танцевальная Музыка", s:"w"},
-        "mb": {g:"R&B", s:"m"},
+        "rnb": {g:"R&B", s:"m"},
         "techno": {g:"Техно", s:"m"},
         "disco": {g:"Диско", s:"m"},
         "house": {g:"Хаус", s:"m"},
@@ -145,6 +145,19 @@
         }
 
         return genre;
+    }
+
+    const numSuffixes = new Map([
+        ["one", ""],
+        ["two", "а"],
+        ["few", "ов"],
+        ["other", "ов"],
+        ]);
+
+    function getPluralTrackString(num) {
+        const rule = num == 1 ? "one" : new Intl.PluralRules('default', { type: "ordinal" }).select(num);
+        const suffix = numSuffixes.get(rule);
+        return `${num} трек${suffix}`;
     }
 
     const observer = new MutationObserver((mutationsList) => {
@@ -206,7 +219,7 @@
 
                                     if (entity.trackCount) {
                                         const countNode = releaseDateNode.cloneNode(true)
-                                        countNode.textContent = entity.trackCount + " треков"
+                                        countNode.textContent = getPluralTrackString(entity.trackCount)
                                         releaseDateNode.parentElement.append(countNode)
                                     }
                                 }
@@ -263,7 +276,7 @@
                                         };
                                     const durationStr = formatter.format(duration)
 
-                                    durationNode.textContent = entity.tracks.length + " треков (" + durationStr + ")"
+                                    durationNode.textContent = getPluralTrackString(entity.trackCount) + " (" + durationStr + ")"
                                     durationNode.classList.add("PageHeaderAlbumMeta_year_dot__TrSFr")
                                     subtitleNode.parentElement.append(durationNode)
                                 }
