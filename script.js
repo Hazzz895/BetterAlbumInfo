@@ -1,0 +1,209 @@
+
+(function() {
+    const webpackGlobal = window.webpackChunk_N_E;
+    let appRequire = null;
+
+    webpackGlobal.push([
+        [Symbol("requireGetter__BetterAlbumInfo")],
+        {},
+        (internalRequire) => {
+            appRequire = internalRequire;
+        }
+    ]);
+    webpackGlobal.pop();
+
+    if (!appRequire) {
+        console.error("Failed to get appRequire func");
+        return;
+    }
+
+    function hookMethod(moduleNum, c, methodName, hook) {
+        try {
+            const moduleContainer = appRequire(moduleNum); 
+            
+            if (!moduleContainer || !moduleContainer[c]) {
+                console.error("Failed to find target class.");
+                return;
+            }
+
+            const cls = moduleContainer[c];
+
+            if (!cls.prototype[methodName]) {
+                console.error(`Failed to find method ` + methodName + `.`);
+                return;
+            }
+
+            const originalMethod = cls.prototype[methodName];
+
+            cls.prototype[methodName] = async function(...args) {
+                const result = await originalMethod.apply(this, args);
+
+                try {
+                    hook(this, originalMethod, result, ...args)
+                } catch (error) {
+                    console.error(error)
+                }
+
+                return result;
+            };
+
+        } catch (e) {
+            console.error("Fail ", e);
+        }
+    }
+
+    const ALBUM_GETTER = 93650;
+    const PLAYLIST_GETTER = 63554;
+
+    hookMethod(ALBUM_GETTER, "B", "getAlbumWithTracksIds", afterGotEntity)
+    hookMethod(ALBUM_GETTER, "B", "getAlbumWithRichTracks", afterGotEntity)
+    hookMethod(PLAYLIST_GETTER, "T", "getPlaylist", afterGotEntity)
+
+    let lastEntity = null
+
+    /**
+     * @param {*} t 
+     * @param {function} method 
+     * @param {*} result 
+     * @param  {...any} args 
+     */
+    function afterGotEntity(t, method, result, ...args) {
+        lastEntity = {
+            "type": method?.name?.includes("Album") ? "album" : "playlist",
+            "entity": result
+        }
+        //console.log(lastEntity)
+    }
+
+    const observer = new MutationObserver((mutationsList) => {
+            for (const mutation of mutationsList) {
+                if (
+                    mutation.type === "childList"
+                ) {
+                    mutation.addedNodes.forEach((node) => {
+                        if (!(node instanceof HTMLElement && lastEntity)) return;
+
+                        const type = lastEntity.type
+                        const entity = lastEntity.entity
+                        if (type === "album") {
+                            if (entity.releaseDate || entity.genre || entity.id) {
+                                const releaseDateNode = node.querySelector?.(
+                                    '[data-test-id="ALBUM_RELEASE_DATE"]')
+                                if (
+                                    releaseDateNode
+                                ) {
+                                    let genreNode;
+                                    if (entity.genre) {
+                                        genreNode = releaseDateNode.cloneNode(true)
+                                        genreNode.textContent = "Жанр: " + entity.genre
+                                    }
+
+                                    if (entity.releaseDate) {
+                                        releaseDateNode.textContent = new Date(entity.releaseDate).toLocaleDateString('default',{
+                                            day: '2-digit',
+                                            month: 'long',   
+                                            year: 'numeric',
+                                        })
+                                        if (entity.recent) {
+                                            const container = document.createElement("div")
+                                            container.innerHTML = 
+                                                `<svg 
+                                                    class="Chart_progress__sGj4s Chart_progress_crown__o__Zm l3tE1hAMmBj2aoPPwU08" 
+                                                    focusable="false" 
+                                                    style="
+                                                        scale: 2;
+                                                        padding-left: 5px;
+                                                    "
+                                                    aria-hidden="false">
+                                                        <use xlink:href="/icons/sprite.svg#chartNew_xxs">
+                                                        </use>
+                                                </svg>`
+                                            releaseDateNode.appendChild(container.firstChild)
+                                        }
+                                    }
+
+                                    if (entity.genre) {
+                                        releaseDateNode.parentElement.append(genreNode)
+                                    }
+
+                                    if (entity.id) {
+                                        const idNode = releaseDateNode.cloneNode(true)
+                                        idNode.textContent = "ID: " + entity.id
+                                        releaseDateNode.parentElement.append(idNode)
+                                    }
+
+                                    if (entity.trackCount) {
+                                        const countNode = releaseDateNode.cloneNode(true)
+                                        countNode.textContent = entity.trackCount + " треков"
+                                        releaseDateNode.parentElement.append(countNode)
+                                    }
+                                }
+                            }
+                        }
+                        else if (type === "playlist") {
+                            if (entity.visibility == "private") {    
+                                let title = node.querySelector?.(
+                                        '[data-test-id="ENTITY_TITLE"]')
+                                if (title) {
+                                    parent = title.parentElement
+                                    parent.style = "display: flex; align-items: center;"
+
+                                    const container = document.createElement("div")
+                                    container.innerHTML = 
+                                        `<svg 
+                                        class="CommonControlsBar_ugcIcon__OV0Cl l3tE1hAMmBj2aoPPwU08" 
+                                        focusable="false" 
+                                        aria-label="Этот плейлист можете слушать только вы" 
+                                        data-test-id="UGC_PLAYLIST_ICON" 
+                                        aria-hidden="false">
+                                            <use xlink:href="/icons/sprite.svg#eye_crossed_xxs">
+                                            </use>
+                                        </svg>`
+                                    parent.appendChild(container.firstChild)
+                                }
+                            }
+
+                            let subtitleNode = node.querySelector?.(
+                                    '[data-test-id="PLAYLIST_HEADER_UPDATED_TEXT"]')
+                            if (subtitleNode) {
+                                subtitleNode.innerHTML = `<div>${subtitleNode.innerHTML}</div>`
+                                subtitleNode = subtitleNode.firstChild
+
+                                if (entity.created) {
+                                    subtitleNode.textContent += " / создано " + new Date(entity.created).toLocaleDateString('default',{
+                                                day: 'numeric',
+                                                month: 'long',   
+                                                year: 'numeric'
+                                            })
+                                }
+
+                                if (entity.durationMs) {
+                                    const durationNode = subtitleNode.cloneNode(true)
+                                    durationNode.style = null
+                                    durationNode.classList.remove("oyQL2RSmoNbNQf3Vc6YI")
+
+                                    const formatter = new Intl.DurationFormat('default', {style: "long"})
+                                    const seconds = Math.floor(entity.durationMs / 1000)
+                                    const duration = {
+                                        hours: Math.floor(seconds / 3600),
+                                        minutes: Math.floor((seconds % 3600) / 60),
+                                        seconds: seconds % 60
+                                        };
+                                    const durationStr = formatter.format(duration)
+
+                                    durationNode.textContent = entity.tracks.length + " треков (" + durationStr + ")"
+                                    durationNode.classList.add("PageHeaderAlbumMeta_year_dot__TrSFr")
+                                    subtitleNode.parentElement.append(durationNode)
+                                }
+                            }
+                        }
+                    });
+                }
+            }
+        });
+
+    observer.observe(document.body, {
+        childList: true,
+        subtree: true,
+    });
+})();
