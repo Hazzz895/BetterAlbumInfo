@@ -83,8 +83,9 @@
         "electronics": {g: "Электроника", s: "w"},
         "pop": {g:"Поп", s:"m"},
         "kpop": {g:"K-Пoп", s:"m"},
+        "hyperpopgenre": {g:"Гиперпoп", s:"m"},
         "indie": {g:"Инди", s:"m"},
-        "alernative": {g:"Альтернатив", s:"m"},
+        "alternative": {g:"Альтернатив", s:"m"},
         "edmgenre": {g:"EDM", s:"m"},
         "dance": {g:"Танцевальная Музыка", s:"w"},
         "mb": {g:"R&B", s:"m"},
@@ -92,11 +93,25 @@
         "disco": {g:"Диско", s:"m"},
         "house": {g:"Хаус", s:"m"},
         "breakbeatgenre": {g:"Брейкбит", s:"m"},
+        "funk": {g:"Фанк", s:"m"},
+        "dub": {g:"Даб", s:"m"},
+        "soundtrack": {g:"Саундтрек", s:"m"},
+        "films": {g:"Музыка к фильму", s:"w"},
+        "punk": {g:"Панк", s:"m"},
+        "industrial": {g:"Индастриал", s:"m"},
+        "triphopgenre": {g:"Трипхоп", s:"m"},
+        "newwave": {g:"Новая волна", s:"w"},
+        "bassgenre": {g:"Басс", s:"m"},
+        "soul": {g:"Соул", s:"m"},
+        "stonerrock": {g:"Стоунер-рок", s:"m"},
+        "animated": {g:"Анимация", s:"w"},
     }
 
     const suffixes = {
         "rus_m": "Русский",
         "rus_w": "Русская",
+        "local-_m": "Местный",
+        "local-_w": "Местная",
         "foreign_m": "Иностранный",
         "foreign_w": "Иностранная"
     }
