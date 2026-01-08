@@ -54,10 +54,12 @@
 
     const ALBUM_GETTER = 93650;
     const PLAYLIST_GETTER = 63554;
+    const ARTIST_GETTER = 2512;
 
     hookMethod(ALBUM_GETTER, "B", "getAlbumWithTracksIds", afterGotEntity)
     hookMethod(ALBUM_GETTER, "B", "getAlbumWithRichTracks", afterGotEntity)
     hookMethod(PLAYLIST_GETTER, "T", "getPlaylist", afterGotEntity)
+    hookMethod(ARTIST_GETTER, "b", "getInfo", afterGotEntity)
 
     let lastEntity = null
 
@@ -69,7 +71,7 @@
      */
     function afterGotEntity(t, method, result, ...args) {
         lastEntity = {
-            "type": method?.name?.includes("Album") ? "album" : "playlist",
+            "type": method?.name?.includes("Album") ? "album" : method?.name?.includes("Playlist") ? "playlist" : "artist",
             "entity": result
         }
         //console.log(lastEntity)
@@ -249,6 +251,26 @@
                                     durationNode.textContent = entity.tracks.length + " треков (" + durationStr + ")"
                                     durationNode.classList.add("PageHeaderAlbumMeta_year_dot__TrSFr")
                                     subtitleNode.parentElement.append(durationNode)
+                                }
+                            }
+                        }
+                        else if (type === "artist") {
+                            if (entity.stats?.lastMonthListenersDelta && entity.stats?.lastMonthListenersDelta != 0) {
+                                const monthListenersNode = node.querySelector?.(
+                                        '[data-test-id="ARTIST_LISTENERS_COUNT"]')
+                                if (monthListenersNode) {
+                                    const delta = entity.stats.lastMonthListenersDelta
+                                    const deltaNode = document.createElement('span')
+                                    deltaNode.classList = ["g3qWNP6xl__7qxNmtrvd", "_3_Mxw7Si7j2g4kWjlpR"]
+                                    let color = "f84d33";
+                                    if (delta > 0) {
+                                        deltaNode.textContent = "+"
+                                        color = "4fca64"
+                                    }
+
+                                    deltaNode.style = "color: #" + color + "; opacity: 75%;"
+                                    deltaNode.textContent += delta.toLocaleString() + " за последние 28 дней"
+                                    monthListenersNode.parentElement.appendChild(deltaNode)
                                 }
                             }
                         }
