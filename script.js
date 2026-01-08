@@ -75,6 +75,61 @@
         //console.log(lastEntity)
     }
 
+    const genres = {
+        "rap": {g: "Рэп", s: "m"},
+        "rock": {g: "Рок", s: "m"},
+        "electronics": {g: "Электроника", s: "w"},
+        "pop": {g:"Поп", s:"m"},
+        "kpop": {g:"K-Пoп", s:"m"},
+        "indie": {g:"Инди", s:"m"},
+        "alernative": {g:"Альтернатив", s:"m"},
+        "edmgenre": {g:"EDM", s:"m"},
+        "dance": {g:"Танцевальная Музыка", s:"w"},
+        "mb": {g:"R&B", s:"m"},
+        "techno": {g:"Техно", s:"m"},
+        "disco": {g:"Диско", s:"m"},
+        "house": {g:"Хаус", s:"m"},
+        "breakbeatgenre": {g:"Брейкбит", s:"m"},
+    }
+
+    const suffixes = {
+        "rus_m": "Русский",
+        "rus_w": "Русская",
+        "foreign_m": "Иностранный",
+        "foreign_w": "Иностранная"
+    }
+
+    /**
+     * @param {string} genre 
+     * @returns {string}
+     */
+    function getLocalizatedGenre(genre) {
+        if (genres[genre]) {
+            return genres[genre].g;
+        }
+
+        const suffixKeys = Object.keys(suffixes);
+        const prefixes = [...new Set(suffixKeys.map(x => x.split('_')[0]))];
+
+        for (const prefix of prefixes) {
+            if (genre.startsWith(prefix)) {
+                const cleanGenreKey = genre.slice(prefix.length);
+
+                if (genres[cleanGenreKey]) {
+                    const genreData = genres[cleanGenreKey];
+                    
+                    const suffixKey = `${prefix}_${genreData.s}`;
+                    
+                    if (suffixes[suffixKey]) {
+                        return `${suffixes[suffixKey]} ${genreData.g}`;
+                    }
+                }
+            }
+        }
+
+        return genre;
+    }
+
     const observer = new MutationObserver((mutationsList) => {
             for (const mutation of mutationsList) {
                 if (
@@ -95,7 +150,7 @@
                                     let genreNode;
                                     if (entity.genre) {
                                         genreNode = releaseDateNode.cloneNode(true)
-                                        genreNode.textContent = "Жанр: " + entity.genre
+                                        genreNode.textContent = "Жанр: " + getLocalizatedGenre(entity.genre)
                                     }
 
                                     if (entity.releaseDate) {
