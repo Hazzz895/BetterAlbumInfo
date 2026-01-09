@@ -71,7 +71,7 @@
         return;
     }
 
-    function hookMethod(moduleNum, c, methodName, hook) {
+    function hookMethod(moduleNum, methodName, hook, c = undefined) {
         try {
             const moduleContainer = appRequire(moduleNum); 
             
@@ -233,14 +233,28 @@
 
     const observer = new MutationObserver((mutationsList) => {
             for (const mutation of mutationsList) {
+                const node = mutation.target
+                if (node instanceof HTMLElement && getSetting('playlist_index', false)) {
+                    const trackNodes = node.querySelectorAll?.('div[data-index] > div[data-test-id="TRACK_PLAYLIST"]:not(:has(div.PlayButtonWithPosition_position__wk3OT))')
+                    trackNodes.forEach(node => {
+                        const position = node.parentElement.getAttribute("data-index")
+                        const positionNode = document.createElement('div')
+                        positionNode.style = "padding-right: var(--ym-spacer-size-xs)"
+                        positionNode.classList.add("_MWOVuZRvUQdXKTMcOPx", "Z_WIr2W8JU4MPQek3hgR", "ZYV27jeWd30QDXu4GhaH", "PlayButtonWithPosition_position__wk3OT")
+                        positionNode.textContent = position
+                        node.insertBefore(positionNode, node.firstChild)
+                    })
+                }
+
                 if (
-                    mutation.type === "childList"
+                    mutation.type === "childList" && lastEntity
                 ) {
                     mutation.addedNodes.forEach((node) => {
-                        if (!(node instanceof HTMLElement && lastEntity)) return;
+                        if (!(node instanceof HTMLElement)) return;
 
                         const type = lastEntity.type
                         const entity = lastEntity.entity
+
                         if (type === "album") {
                             const releaseDateNode = node.querySelector?.(
                                 '[data-test-id="ALBUM_RELEASE_DATE"]')
@@ -329,7 +343,7 @@
                                     durationNode.style = null
                                     durationNode.classList.remove("oyQL2RSmoNbNQf3Vc6YI")
 
-                                    const formatter = new Intl.DurationFormat('default', {style: "long"})
+                                    const formatter = new Intl.DurationFormat('ru-RU', {style: "long"})
                                     const seconds = Math.floor(entity.durationMs / 1000)
                                     const duration = {
                                         hours: Math.floor(seconds / 3600),
@@ -364,8 +378,8 @@
                                 }
                             }
                         }
-                    });
-                }
+                });
+            }
             }
         });
 
