@@ -1,0 +1,110 @@
+{
+    "sections": [
+        {
+            "title": "Важно!",
+            "items": [
+                {
+                    "id": "btw",
+                    "name": "После изменения настроек перепустите аддон или Яндекс Музыку",
+                    "description": "Для применения изменений в настройках необходим перезапуск аддона или Яндекс Музыки",
+                    "type": "text",
+                    "buttons": [
+                        {
+                            "id": "btwbtw",
+                            "name": " ",
+                            "text": "Для применения изменений в настройках необходим перезапуск аддона или Яндекс Музыки",
+                            "defaultParameter": "Для применения изменений в настройках необходим перезапуск аддона или Яндекс Музыки"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "title": "Плейлисты",
+            "items": [
+                {
+                    "id": "playlist_index",
+                    "name": "Порядковый номер треков",
+                    "description": "Показывать порядковый номер треков рядом с обложкой в плейлистах",
+                    "type": "button",
+                    "bool": true,
+                    "defaultParameter": true
+                },
+                {
+                    "id": "playlist_created",
+                    "name": "Дата создания",
+                    "description": "Показывать дату создания плейлиста в его подзаголовке",
+                    "type": "button",
+                    "bool": true,
+                    "defaultParameter": true
+                },
+                {
+                    "id": "playlist_trackCount",
+                    "name": "Количество и длительность треков",
+                    "description": "Показывать количество треков и их суммарную длительность в подзаголовке плейлиста",
+                    "type": "button",
+                    "bool": true,
+                    "defaultParameter": true
+                },
+                {
+                    "id": "playlist_private",
+                    "name": "Иконка приватного плейлиста",
+                    "description": "Показывать иконку рядом с названием плейлиста, если он приватный",
+                    "type": "button",
+                    "bool": true,
+                    "defaultParameter": true
+                }
+            ]
+        },
+        {
+            "title": "Альбомы",
+            "items": [
+                {
+                    "id": "album_genre",
+                    "name": "Жанр",
+                    "description": "Показывать жанр альбома в его подзаголовке",
+                    "type": "button",
+                    "bool": true,
+                    "defaultParameter": true
+                },
+                {
+                    "id": "album_date",
+                    "name": "Полная дата релиза",
+                    "description": "Изменять год релиза на полную дату в подзаголовке альбома",
+                    "type": "button",
+                    "bool": true,
+                    "defaultParameter": true
+                },
+                {
+                    "id": "album_id",
+                    "name": "ID альбома",
+                    "description": "Показывать ID альбома в его подзаголовке",
+                    "type": "button",
+                    "bool": true,
+                    "defaultParameter": true
+                },
+                {
+                    "id": "album_trackCount",
+                    "name": "Количество треков",
+                    "description": "Показывать количество треков в его подзаголовке",
+                    "type": "button",
+                    "bool": true,
+                    "defaultParameter": true
+                }
+            ]
+        },
+        {
+            "title": "Артисты",
+            "items": [
+                {
+                    "id": "artist_delta",
+                    "name": "Изменение слушателей за месяц",
+                    "description": "Показывать изменение количество слушателей артиста за последние 28 дней ",
+                    "type": "button",
+                    "bool": true,
+                    "defaultParameter": true
+                }
+            ]
+        }
+    ]
+}

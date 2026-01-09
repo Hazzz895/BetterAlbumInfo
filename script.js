@@ -1,5 +1,59 @@
 
 (function() {
+    let settings = getSettings();
+    function getSettings() {
+        try {
+            fetch(`http://localhost:2007/get_handle?name=BetterAlbumInfo`).then(response => {
+                if (!response.ok) throw new Error(`Ошибка сети: ${response.status}`);
+    
+                response.json().then(d => {
+                    const { data } = d
+                    if (data?.sections) {
+                        settings = transformJSON(data);
+                    }
+                });
+                
+            });
+            return null;
+        } catch (error) {
+            console.error(error);
+            return null;
+        }
+    }
+
+    function transformJSON(data) {
+        const result = {};
+        try {
+            data.sections.forEach(section => {
+                section.items.forEach(item => {
+                    if (item.type === "text" && item.buttons) {
+                        result[item.id] = {};
+                        item.buttons.forEach(button => {
+                            result[item.id][button.id] = {
+                                value: button.text,
+                                default: button.defaultParameter
+                            };
+                        });
+                    } else {
+                        result[item.id] = {
+                            value: item.bool || item.input || item.selected || item.value || item.filePath,
+                            default: item.defaultParameter
+                        };
+                    }
+                });
+            });
+        } finally {
+            return result;
+        }
+    }
+
+    function getSetting(name, withEntityType = true) {
+        if (!settings) return true;
+
+        const setting = (withEntityType ? lastEntity.type + "_" : "") + name
+        return settings[setting].value
+    }
+
     const webpackGlobal = window.webpackChunk_N_E;
     let appRequire = null;
 
@@ -171,62 +225,38 @@
                         const type = lastEntity.type
                         const entity = lastEntity.entity
                         if (type === "album") {
-                            if (entity.releaseDate || entity.genre || entity.id) {
-                                const releaseDateNode = node.querySelector?.(
-                                    '[data-test-id="ALBUM_RELEASE_DATE"]')
-                                if (
-                                    releaseDateNode
-                                ) {
-                                    let genreNode;
-                                    if (entity.genre) {
-                                        genreNode = releaseDateNode.cloneNode(true)
-                                        genreNode.textContent = "Жанр: " + getLocalizatedGenre(entity.genre)
-                                    }
+                            const releaseDateNode = node.querySelector?.(
+                                '[data-test-id="ALBUM_RELEASE_DATE"]')
+                            if (
+                                releaseDateNode
+                            ) {
+                                let genreNode;
+                                if (entity.genre && getSetting("genre")) {
+                                    genreNode = releaseDateNode.cloneNode(true)
+                                    genreNode.textContent = "Жанр: " + getLocalizatedGenre(entity.genre)
+                                }
 
-                                    if (entity.releaseDate) {
-                                        releaseDateNode.textContent = new Date(entity.releaseDate).toLocaleDateString('default',{
-                                            day: '2-digit',
-                                            month: 'long',   
-                                            year: 'numeric',
-                                        })
-                                        if (entity.recent) {
-                                            const container = document.createElement("div")
-                                            container.innerHTML = 
-                                                `<svg 
-                                                    class="Chart_progress__sGj4s Chart_progress_crown__o__Zm l3tE1hAMmBj2aoPPwU08" 
-                                                    focusable="false" 
-                                                    style="
-                                                        scale: 2;
-                                                        padding-left: 5px;
-                                                    "
-                                                    aria-hidden="false">
-                                                        <use xlink:href="/icons/sprite.svg#chartNew_xxs">
-                                                        </use>
-                                                </svg>`
-                                            releaseDateNode.appendChild(container.firstChild)
-                                        }
-                                    }
+                                if (entity.releaseDate && getSetting("date")) {
 
                                     if (entity.genre) {
                                         releaseDateNode.parentElement.append(genreNode)
                                     }
 
-                                    if (entity.id) {
-                                        const idNode = releaseDateNode.cloneNode(true)
-                                        idNode.textContent = "ID: " + entity.id
-                                        releaseDateNode.parentElement.append(idNode)
-                                    }
+                                if (entity.id && getSetting("id")) {
+                                    const idNode = releaseDateNode.cloneNode(true)
+                                    idNode.textContent = "ID: " + entity.id
+                                    releaseDateNode.parentElement.append(idNode)
+                                }
 
-                                    if (entity.trackCount) {
-                                        const countNode = releaseDateNode.cloneNode(true)
-                                        countNode.textContent = getPluralTrackString(entity.trackCount)
-                                        releaseDateNode.parentElement.append(countNode)
-                                    }
+                                if (entity.trackCount && getSetting("trackCount")) {
+                                    const countNode = releaseDateNode.cloneNode(true)
+                                    countNode.textContent = getPluralTrackString(entity.trackCount)
+                                    releaseDateNode.parentElement.append(countNode)
                                 }
                             }
                         }
                         else if (type === "playlist") {
-                            if (entity.visibility == "private") {    
+                            if (entity.visibility == "private" && getSetting("private")) {    
                                 let title = node.querySelector?.(
                                         '[data-test-id="ENTITY_TITLE"]')
                                 if (title) {
@@ -250,19 +280,16 @@
 
                             let subtitleNode = node.querySelector?.(
                                     '[data-test-id="PLAYLIST_HEADER_UPDATED_TEXT"]')
+
                             if (subtitleNode) {
                                 subtitleNode.innerHTML = `<div>${subtitleNode.innerHTML}</div>`
                                 subtitleNode = subtitleNode.firstChild
 
-                                if (entity.created) {
-                                    subtitleNode.textContent += " / создано " + new Date(entity.created).toLocaleDateString('default',{
-                                                day: 'numeric',
-                                                month: 'long',   
-                                                year: 'numeric'
-                                            })
+                                if (entity.created && getSetting("created")) {
+                                    subtitleNode.textContent += " / создано " + getLocalizatedDate(entity.created)
                                 }
 
-                                if (entity.durationMs) {
+                                if (entity.durationMs && entity.trackCount && getSetting("trackCount")) {
                                     const durationNode = subtitleNode.cloneNode(true)
                                     durationNode.style = null
                                     durationNode.classList.remove("oyQL2RSmoNbNQf3Vc6YI")
@@ -283,7 +310,7 @@
                             }
                         }
                         else if (type === "artist") {
-                            if (entity.stats?.lastMonthListenersDelta && entity.stats?.lastMonthListenersDelta != 0) {
+                            if (entity.stats?.lastMonthListenersDelta && entity.stats?.lastMonthListenersDelta != 0 && getSetting("delta")) {
                                 const monthListenersNode = node.querySelector?.(
                                         '[data-test-id="ARTIST_LISTENERS_COUNT"]')
                                 if (monthListenersNode) {
