@@ -125,12 +125,6 @@
 
     let lastEntity = null
 
-    /**
-     * @param {*} t 
-     * @param {function} method 
-     * @param {*} result 
-     * @param  {...any} args 
-     */
     function afterGotEntity(t, method, result, ...args) {
         lastEntity = {
             "type": method?.name?.includes("Album") ? "album" : method?.name?.includes("Playlist") ? "playlist" : "artist",
@@ -212,14 +206,29 @@
     const numSuffixes = new Map([
         ["one", ""],
         ["two", "а"],
-        ["few", "ов"],
+        ["few", "а"],
+        ["many", "ов"],
         ["other", "ов"],
         ]);
 
+    const pluralFormatter = new Intl.PluralRules('ru-RU')
+
     function getPluralTrackString(num) {
-        const rule = num == 1 ? "one" : new Intl.PluralRules('default', { type: "ordinal" }).select(num);
+        const rule = pluralFormatter.select(num);
         const suffix = numSuffixes.get(rule);
         return `${num} трек${suffix}`;
+    }
+
+    function getLocalizatedDate(date) {
+        if (!(date instanceof Date)) {
+            date = new Date(date)
+        }
+
+        return date.toLocaleDateString('ru-RU',{
+                day: 'numeric',
+                month: 'long',   
+                year:  date.getFullYear() == new Date(Date.now()).getFullYear() ? undefined : 'numeric',
+            })
     }
 
     const observer = new MutationObserver((mutationsList) => {
@@ -245,10 +254,28 @@
                                 }
 
                                 if (entity.releaseDate && getSetting("date")) {
-
-                                    if (entity.genre) {
-                                        releaseDateNode.parentElement.append(genreNode)
+                                    releaseDateNode.textContent = getLocalizatedDate(entity.releaseDate)
+                                    if (entity.recent) {
+                                        const container = document.createElement("div")
+                                        container.innerHTML = 
+                                            `<svg 
+                                                class="Chart_progress__sGj4s Chart_progress_crown__o__Zm l3tE1hAMmBj2aoPPwU08" 
+                                                focusable="false" 
+                                                style="
+                                                    scale: 2;
+                                                    padding-left: 5px;
+                                                "
+                                                aria-hidden="false">
+                                                    <use xlink:href="/icons/sprite.svg#chartNew_xxs">
+                                                    </use>
+                                            </svg>`
+                                        releaseDateNode.appendChild(container.firstChild)
                                     }
+                                }
+
+                                if (genreNode) {
+                                    releaseDateNode.parentElement.append(genreNode)
+                                }
 
                                 if (entity.id && getSetting("id")) {
                                     const idNode = releaseDateNode.cloneNode(true)
