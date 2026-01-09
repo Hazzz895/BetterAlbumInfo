@@ -235,13 +235,20 @@
             for (const mutation of mutationsList) {
                 const node = mutation.target
                 if (node instanceof HTMLElement && getSetting('playlist_index', false)) {
-                    const trackNodes = node.querySelectorAll?.('div[data-index] > div[data-test-id="TRACK_PLAYLIST"]:not(:has(div.PlayButtonWithPosition_position__wk3OT))')
+                    const trackNodes = node.querySelectorAll?.('div[data-index] div[data-test-id="TRACK_PLAYLIST"]:not(:has(div.PlayButtonWithPosition_position__wk3OT))')
                     trackNodes.forEach(node => {
-                        const position = node.parentElement.getAttribute("data-index")
+                        const parent = node.closest('div[data-index]')
+                        const index = parent.getAttribute("data-index")
+                        const position = parseInt(index) + 1
+                        if (isNaN(position)) return;
                         const positionNode = document.createElement('div')
-                        positionNode.style = "padding-right: var(--ym-spacer-size-xs)"
-                        positionNode.classList.add("_MWOVuZRvUQdXKTMcOPx", "Z_WIr2W8JU4MPQek3hgR", "ZYV27jeWd30QDXu4GhaH", "PlayButtonWithPosition_position__wk3OT")
-                        positionNode.textContent = position
+                        positionNode.classList.add("_MWOVuZRvUQdXKTMcOPx", "Z_WIr2W8JU4MPQek3hgR", "ZYV27jeWd30QDXu4GhaH", "PlayButtonWithPosition_position__wk3OT", "PositionIndex")
+                        const dragAndDrop = node.querySelector('.DragAndDropIcon_root__OstQU')
+                        if (dragAndDrop) {
+                            dragAndDrop.classList.add("DragAndDrop_positionIndex")
+                            positionNode.classList.add("PositionIndex_dragAndDrop")
+                        }
+                        positionNode.textContent = position.toLocaleString()
                         node.insertBefore(positionNode, node.firstChild)
                     })
                 }
