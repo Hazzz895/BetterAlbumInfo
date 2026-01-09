@@ -5,6 +5,7 @@
 - Иконка которая указывает на то, что плейлист приватный
 - Жанр альбома
 - ID альбома
-  
+- Изменение количества ежемесячных прослушиваний на странице артиста
+      
 <img width="1153" height="247" alt="image" src="https://github.com/user-attachments/assets/af08b65a-86ab-4e3e-957e-28093091c584" />
 <img width="932" height="247" alt="image" src="https://github.com/user-attachments/assets/8ff84346-2fc3-4e5a-bd55-ad7eb519037a" />
