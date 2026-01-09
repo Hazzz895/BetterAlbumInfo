@@ -75,7 +75,15 @@
         try {
             const moduleContainer = appRequire(moduleNum); 
             
-            if (!moduleContainer || !moduleContainer[c]) {
+            if (!moduleContainer) {
+                console.error("Failed to get module")
+            }
+            
+            if (!c) {
+                c = Object.keys(moduleContainer)[0]
+            }
+
+            if (!moduleContainer[c]) {
                 console.error("Failed to find target class.");
                 return;
             }
@@ -110,10 +118,10 @@
     const PLAYLIST_GETTER = 63554;
     const ARTIST_GETTER = 2512;
 
-    hookMethod(ALBUM_GETTER, "B", "getAlbumWithTracksIds", afterGotEntity)
-    hookMethod(ALBUM_GETTER, "B", "getAlbumWithRichTracks", afterGotEntity)
-    hookMethod(PLAYLIST_GETTER, "T", "getPlaylist", afterGotEntity)
-    hookMethod(ARTIST_GETTER, "b", "getInfo", afterGotEntity)
+    hookMethod(ALBUM_GETTER, "getAlbumWithTracksIds", afterGotEntity)
+    hookMethod(ALBUM_GETTER, "getAlbumWithRichTracks", afterGotEntity)
+    hookMethod(PLAYLIST_GETTER, "getPlaylist", afterGotEntity)
+    hookMethod(ARTIST_GETTER, "getInfo", afterGotEntity)
 
     let lastEntity = null
 
