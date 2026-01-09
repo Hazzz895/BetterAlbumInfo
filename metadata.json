@@ -4,6 +4,7 @@
     "description": "Добавляет больше информации о альбомах и плейлистах",
     "version": "1.2.0",
     "script": "script.js",
+    "css": "style.css",
     "type": "script",
     "tags": [
         "Script",

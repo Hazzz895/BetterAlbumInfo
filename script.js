@@ -273,12 +273,8 @@
                                         const container = document.createElement("div")
                                         container.innerHTML = 
                                             `<svg 
-                                                class="Chart_progress__sGj4s Chart_progress_crown__o__Zm l3tE1hAMmBj2aoPPwU08" 
+                                                class="Chart_progress__sGj4s Chart_progress_crown__o__Zm l3tE1hAMmBj2aoPPwU08 RecentAlbumIcon" 
                                                 focusable="false" 
-                                                style="
-                                                    scale: 2;
-                                                    padding-left: 5px;
-                                                "
                                                 aria-hidden="false">
                                                     <use xlink:href="/icons/sprite.svg#chartNew_xxs">
                                                     </use>
@@ -309,8 +305,8 @@
                                 let title = node.querySelector?.(
                                         '[data-test-id="ENTITY_TITLE"]')
                                 if (title) {
-                                    parent = title.parentElement
-                                    parent.style = "display: flex; align-items: center;"
+                                    const parent = title.parentElement
+                                    parent.classList.add("PrivatePlaylistIconContainer")
 
                                     const container = document.createElement("div")
                                     container.innerHTML = 
@@ -365,14 +361,14 @@
                                 if (monthListenersNode) {
                                     const delta = entity.stats.lastMonthListenersDelta
                                     const deltaNode = document.createElement('span')
-                                    deltaNode.classList = ["g3qWNP6xl__7qxNmtrvd", "_3_Mxw7Si7j2g4kWjlpR"]
-                                    let color = "f84d33";
+                                    deltaNode.classList.add("g3qWNP6xl__7qxNmtrvd", "_3_Mxw7Si7j2g4kWjlpR", "DeltaListeners")
                                     if (delta > 0) {
                                         deltaNode.textContent = "+"
-                                        color = "4fca64"
+                                        deltaNode.classList.add("PositiveDeltaListeners")
                                     }
-
-                                    deltaNode.style = "color: #" + color + "; opacity: 75%;"
+                                    else {
+                                        deltaNode.classList.add("NegativeDeltaListeners")
+                                    }
                                     deltaNode.textContent += delta.toLocaleString() + " за последние 28 дней"
                                     monthListenersNode.parentElement.appendChild(deltaNode)
                                 }
