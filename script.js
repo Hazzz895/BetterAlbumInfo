@@ -276,8 +276,10 @@
                                 }
 
                                 if (entity.releaseDate && getSetting("date")) {
-                                    releaseDateNode.textContent = getLocalizatedDate(entity.releaseDate)
-                                    if (entity.recent) {
+                                    const date = new Date(entity.releaseDate)
+                                    const now = new Date(Date.now())
+                                    releaseDateNode.textContent = getLocalizatedDate(date)
+                                    if ((now - date)/1000/60/60/24/30 < (entity.recent ? 3 : 1)) {
                                         const container = document.createElement("div")
                                         container.innerHTML = 
                                             `<svg 
