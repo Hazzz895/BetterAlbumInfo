@@ -236,7 +236,7 @@
             for (const mutation of mutationsList) {
                 const node = mutation.target
                 if (node instanceof HTMLElement && getSetting('playlist_index', false)) {
-                    const trackNodes = node.querySelectorAll?.('div[data-index] :is(.PlaylistPageDnDItemWrapper_inner__UXQZf, &) > div[data-test-id="TRACK_PLAYLIST"]:not(:has(.PlayButtonWithPosition_position__wk3OT))')
+                    const trackNodes = node.querySelectorAll?.('div[data-index] > .PlaylistPageDnDItemWrapper_inner__UXQZf > div[data-test-id="TRACK_PLAYLIST"]:not(:has(div.PlayButtonWithPosition_position__wk3OT)), div[data-index] > div[data-test-id="TRACK_PLAYLIST"]:not(:has(div.PlayButtonWithPosition_position__wk3OT))')
                     trackNodes.forEach(node => {
                         const parent = node.closest('div[data-index]')
                         const index = parent.getAttribute("data-index")
