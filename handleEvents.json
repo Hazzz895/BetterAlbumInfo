@@ -31,6 +31,14 @@
                     "defaultParameter": true
                 },
                 {
+                    "id": "playlist_moreOwner",
+                    "name": "Больше плейлистов от автора",
+                    "description": "При нажатии на автора плейлиста в подзаголовке плейлиста показывать другие плейлисты от него",
+                    "type": "button",
+                    "bool": true,
+                    "defaultParameter": true
+                },
+                {
                     "id": "playlist_created",
                     "name": "Дата создания",
                     "description": "Показывать дату создания плейлиста в его подзаголовке",

@@ -338,6 +338,127 @@
                                 subtitleNode.innerHTML = `<div>${subtitleNode.innerHTML}</div>`
                                 subtitleNode = subtitleNode.firstChild
 
+                                if (entity.owner && entity.lastOwnerPlaylists && entity.lastOwnerPlaylists.length > 0 && getSetting("moreOwner")) {
+                                    subtitleNode.textContent = subtitleNode.textContent.replace(RegExp(`^((${entity.owner.name})|(${entity.owner.login}))`), " ")
+                                    subtitleNode.innerHTML = "&nbsp;" + subtitleNode.innerHTML
+
+                                    const container = document.createElement("div")
+                                    container.innerHTML = `<button 
+                                        class=
+                                        type="button" >
+                                        </button>`
+                                    const button = document.createElement("button")
+                                    button.classList.add("cpeagBA1_PblpJn8Xgtv", "qlPp6CSQQEMVZPqtqLiQ", "dgV08FKVLZKFsucuiryn", "IlG7b1K0AD7E7AMx6F5p", "IgYbZLnYjW0nMahgpkus", "qU2apWBO1yyEK0lZ3lPO")
+                                    button.type = "button"
+                                    button.style.overflow = "unset"
+
+                                    function onClick(entity) {
+                                        const overlay = document.createElement('div');
+                                        overlay.id = 'BetterAlbumInfo_modal';
+                                        overlay.classList.add("MorePlaylistsFromUserModal", "ifxS_8bgSnwBoCsyow0E", "t7tk8IYH3tGrhDZJpi3Z", "GKgBufCxWa9erUCTU3Fp")
+
+                                        const modal = document.createElement('div');
+                                        modal.classList.add("MorePlaylistsFromUserModal_modal", "ifxS_8bgSnwBoCsyow0E")
+
+                                        const header = document.createElement('div');
+                                        header.innerText = "Еще плейлисты от " + entity.owner.name;
+                                        header.style.marginBottom = "20px";
+                                        header.style.fontSize = "20px";
+                                        header.style.fontWeight = "bold";
+
+                                        const content = document.createElement('div');
+                                        const contentContent = document.createElement('div')
+
+                                        const albumList = document.createElement("ol")
+                                        albumList.classList.add("IZnFMW4gXBshJODnvB1P", "SkeletonBlock_container__9IxUi")
+
+                                        entity.lastOwnerPlaylists.forEach(playlist => {
+                                            const container = document.createElement('li')
+                                            container.classList.add("VJ9IexhAEuYSCyGiMfN4")
+                                            container.innerHTML = `<div
+                                                                    class="laBJlJAaqEVS0i_4Ot3l PlaylistCard_root__i3pR4"
+                                                                    >
+                                                                    <div>
+                                                                        <a
+                                                                        href="/playlists?playlistUuid=${playlist.playlistUuid}"
+                                                                        >
+                                                                            <div
+                                                                            class="qaIScXjx1qyXuaIHXQIo _7gw1qGE6BeUAdSMbhRx ZcpulvHgF_wsgzB8Hye9 gtfPudKIIbfkwmuOBzwI PlaylistCard_cover__tpK5L"
+                                                                            >
+                                                                                <div class="PlaylistCard_coverBlock__1slsN">
+                                                                                    <img
+                                                                                    class="qQ7GQU14EkggPBC6jdeS fosYvyLDok3Kjj9OWmxG PlaylistCard_image__Li6oy"
+                                                                                    alt="Плейлист ${playlist.title}"
+                                                                                    loading="eager"
+                                                                                    aria-hidden="true"
+                                                                                    data-test-id="ENTITY_COVER_IMAGE"
+                                                                                    srcset="
+                                                                                        https://${playlist.ogImage.replace("%%", "200x200")},
+                                                                                        https://${playlist.ogImage.replace("%%", "400x400")} 2x
+                                                                                    "
+                                                                                    src="https://${playlist.ogImage.replace("%%", "200x200")}"
+                                                                                    />
+                                                                                </div>
+                                                                            </div>
+                                                                        </a>
+                                                                    </div>
+                                                                    <div class="IO4kvpDGNI2J0CHwcKSf">
+                                                                        <div class="l8SktNpJd30JWp1owp_b Mb33JzAWx9EjbQAeScFt" style="min-height: var(--ym-font-line-height-label-m)">
+                                                                        <div class="LmhA6nlLyzxwYIX31gYa">
+                                                                            <div
+                                                                            class="_MWOVuZRvUQdXKTMcOPx LezmJlldtbHWqU7l1950 jMyoZB5J9iZbzJmWOrF0 mxSPe5xpZnie9gpIqacd _3_Mxw7Si7j2g4kWjlpR FAmeEGy52GX1k0xZuPDn"
+                                                                            style="-webkit-line-clamp: 2; margin-bottom: 5px"
+                                                                            >
+                                                                                <div
+                                                                                    class="_MWOVuZRvUQdXKTMcOPx LezmJlldtbHWqU7l1950 jMyoZB5J9iZbzJmWOrF0 mxSPe5xpZnie9gpIqacd _3_Mxw7Si7j2g4kWjlpR"
+                                                                                    data-test-id="PLAYLIST_TITLE"
+                                                                                    style="-webkit-line-clamp: 2"
+                                                                                >
+                                                                                    <a
+                                                                                    target="_self"
+                                                                                    rel=""
+                                                                                    class="buOTZq_TKQOVyjMLrXvB PlaylistCard_titleLink__H8qEc"
+                                                                                    href="/playlists?playlistUuid=${playlist.playlistUuid}"
+                                                                                    >${playlist.title}</a
+                                                                                    >
+                                                                                </div>
+                                                                                <div class="IgYbZLnYjW0nMahgpkus">
+                                                                                ${getPluralTrackString(playlist.trackCount)}
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    </div>`
+                                            albumList.appendChild(container)
+                                        })
+                                        content.appendChild(albumList)
+
+                                        const btn = document.createElement('button');
+                                        btn.classList.add("MorePlaylistsFromUserModal_button")
+                                        btn.innerText = "Закрыть";
+                                    
+                                        btn.onclick = () => overlay.remove();
+
+                                        content.appendChild(contentContent)
+                                        content.appendChild(btn);
+                                        modal.appendChild(header);
+                                        modal.appendChild(content);
+                                        overlay.appendChild(modal);
+                                        document.body.appendChild(overlay);
+
+                                        overlay.onclick = (e) => {
+                                            if (e.target === overlay) overlay.remove();
+                                        };
+                                    }
+                                    button.addEventListener("click", (_, e = entity) => onClick(e))
+                                    const span = document.createElement('span')
+                                    span.classList.add("_MWOVuZRvUQdXKTMcOPx", "g3qWNP6xl__7qxNmtrvd", "_3_Mxw7Si7j2g4kWjlpR")
+                                    span.textContent = entity.owner.name
+                                    button.appendChild(span)
+                                    subtitleNode.parentElement.insertBefore(button, subtitleNode.parentElement.firstChild)
+                                }
+
                                 if (entity.created && getSetting("created")) {
                                     subtitleNode.textContent += " / создано " + getLocalizatedDate(entity.created)
                                 }
