@@ -161,6 +161,7 @@
         "soul": {g:"Соул", s:"m"},
         "stonerrock": {g:"Стоунер-рок", s:"m"},
         "animated": {g:"Анимация", s:"w"},
+        "children": {g:"Музыка для детей", s:"w"},
     }
 
     const suffixes = {
