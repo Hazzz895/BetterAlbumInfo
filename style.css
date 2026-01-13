@@ -1,8 +1,3 @@
-.PrivatePlaylistIconContainer {
-    display: flex; 
-    align-items: center;
-}
-
 .DeltaListeners {
     opacity: 75%;
 }
@@ -66,4 +61,15 @@
     background: var(--ym-controls-color-primary-default-enabled, #ffcc00);
     cursor: pointer;
     font-weight: bold;
+}
+
+.titleContainer {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.aiGeneratedContainer {
+    display: flex;
+    align-items: center;
 }

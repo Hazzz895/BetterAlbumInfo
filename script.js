@@ -1,5 +1,19 @@
 
 (function() {
+
+    let _aiArtistsCache = { }
+    async function isAi(artistId) {
+        let result = _aiArtistsCache[artistId]
+        if (result !== null && result !== undefined) {
+            return _aiArtistsCache[artistId]
+        }
+        result = (await fetch('https://iimuzyka.top/' + artistId.toString(), {
+            redirect: 'manual'
+        })).ok
+        _aiArtistsCache[artistId] = result
+        return result 
+    }
+
     let settings = getSettings();
     function getSettings() {
         try {
@@ -130,7 +144,7 @@
             "type": method?.name?.includes("Album") ? "album" : method?.name?.includes("Playlist") ? "playlist" : "artist",
             "entity": result
         }
-        //console.log(lastEntity)
+        console.log(lastEntity)
     }
 
     const genres = {
@@ -257,13 +271,58 @@
                 if (
                     mutation.type === "childList" && lastEntity
                 ) {
-                    mutation.addedNodes.forEach((node) => {
+                    mutation.addedNodes.forEach(async (node) => {
                         if (!(node instanceof HTMLElement)) return;
 
                         const type = lastEntity.type
                         const entity = lastEntity.entity
 
+                        async function addAiBadge(artistsIds) {
+                            if (!getSetting("artist_ai", false)) return
+                            if (!Array.isArray(artistsIds)) {
+                                artistsIds = [artistsIds]
+                            }
+                            
+                            const promises = artistsIds.map(id => isAi(id));
+                            const results = await Promise.all(promises);
+                            const isAiGenerated = results.some(result => result === true);
+                            console.log(isAiGenerated)
+                            if (!isAiGenerated) return
+                            
+                            container = node.querySelector(".PageHeaderTitle_stickyTitle__CL1m4:is(:not(:has(.aiGeneratedIcon)) :not(.aiGeneratedContainer))")
+                            if (!container) return
+                            container.classList.add("titleContainer")
+                            const cntr = document.createElement('div')
+                            cntr.classList.add("aiGeneratedContainer")
+                            const span = document.createElement("span")
+                            span.textContent = "Сгенерировано ИИ"
+                            const badge = document.createElement("div")
+                            badge.innerHTML = `<svg 
+                                                class="CommonControlsBar_ugcIcon__OV0Cl l3tE1hAMmBj2aoPPwU08 aiGeneratedIcon" 
+                                                focusable="false" 
+                                                aria-label="Сгенерировано ИИ" 
+                                                aria-hidden="false" 
+                                                xmlns="http://www.w3.org/2000/svg" 
+                                                version="1.1" 
+                                                xmlns:xlink="http://www.w3.org/1999/xlink" 
+                                                width="512" 
+                                                height="512" 
+                                                x="0" 
+                                                y="0" 
+                                                viewBox="0 0 512 512">
+                                                    <g>
+                                                        <path d="M440.123 317.331c12.299-14.459 19.745-33.169 19.745-53.594 0-40.92-29.829-74.984-68.88-81.644a61.11 61.11 0 0 0 9.451-32.698c0-65.985-53.683-119.667-119.667-119.667h-5.511c-8.284 0-15 6.716-15 15 0 23.804-19.366 43.17-43.17 43.17H173.06c-33.91 0-61.497 27.587-61.497 61.497a61.11 61.11 0 0 0 9.451 32.698c-39.051 6.661-68.88 40.725-68.88 81.645 0 20.425 7.445 39.135 19.744 53.594C31.365 322.717 0 357.467 0 399.428c0 45.681 37.164 82.845 82.845 82.845h346.31c45.681 0 82.845-37.165 82.845-82.846 0-41.96-31.365-76.71-71.877-82.096zM173.059 117.897h44.031c35.086 0 64.483-24.821 71.552-57.828 45.77 4 81.796 42.535 81.796 89.325 0 17.368-14.129 31.497-31.497 31.497H173.059c-17.368 0-31.497-14.129-31.497-31.497s14.129-31.497 31.497-31.497zm-38.081 92.995h242.045c29.139 0 52.845 23.707 52.845 52.846s-23.706 52.845-52.845 52.845H134.978c-29.139 0-52.845-23.707-52.845-52.846s23.705-52.845 52.845-52.845zm294.177 241.381H82.845C53.707 452.273 30 428.566 30 399.427s23.707-52.845 52.845-52.845h346.31c29.139 0 52.845 23.706 52.845 52.845s-23.707 52.846-52.845 52.846z">
+                                                        </path>
+                                                    </g>
+                                                </svg>`
+                            
+                            cntr.appendChild(badge.firstChild)
+                            cntr.appendChild(span)
+                            container.appendChild(cntr)
+                        }
+
                         if (type === "album") {
+                            await addAiBadge(entity.artists.map(x => x.id))
                             const releaseDateNode = node.querySelector?.(
                                 '[data-test-id="ALBUM_RELEASE_DATE"]')
                             if (
@@ -316,7 +375,7 @@
                                         '[data-test-id="ENTITY_TITLE"]')
                                 if (title) {
                                     const parent = title.parentElement
-                                    parent.classList.add("PrivatePlaylistIconContainer")
+                                    parent.classList.add("titleContainer")
 
                                     const container = document.createElement("div")
                                     container.innerHTML = 
@@ -486,10 +545,11 @@
                             }
                         }
                         else if (type === "artist") {
+                            await addAiBadge(entity.artist.id)
                             if (entity.stats?.lastMonthListenersDelta && entity.stats?.lastMonthListenersDelta != 0 && getSetting("delta")) {
                                 const monthListenersNode = node.querySelector?.(
                                         '[data-test-id="ARTIST_LISTENERS_COUNT"]')
-                                if (monthListenersNode) {
+                                if (monthListenersNode && !node.querySelector('.DeltaListeners')) {
                                     const delta = entity.stats.lastMonthListenersDelta
                                     const deltaNode = document.createElement('span')
                                     deltaNode.classList.add("g3qWNP6xl__7qxNmtrvd", "_3_Mxw7Si7j2g4kWjlpR", "DeltaListeners")
