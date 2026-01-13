@@ -136,6 +136,7 @@
     hookMethod(ALBUM_GETTER, "getAlbumWithRichTracks", afterGotEntity)
     hookMethod(PLAYLIST_GETTER, "getPlaylist", afterGotEntity)
     hookMethod(ARTIST_GETTER, "getInfo", afterGotEntity)
+    hookMethod(ARTIST_GETTER, "getBriefInfo", afterGotEntity)
 
     let lastEntity = null
 
@@ -144,7 +145,7 @@
             "type": method?.name?.includes("Album") ? "album" : method?.name?.includes("Playlist") ? "playlist" : "artist",
             "entity": result
         }
-        console.log(lastEntity)
+        //console.log(lastEntity)
     }
 
     const genres = {
@@ -286,7 +287,6 @@
                             const promises = artistsIds.map(id => isAi(id));
                             const results = await Promise.all(promises);
                             const isAiGenerated = results.some(result => result === true);
-                            console.log(isAiGenerated)
                             if (!isAiGenerated) return
                             
                             container = node.querySelector(".PageHeaderTitle_stickyTitle__CL1m4:is(:not(:has(.aiGeneratedIcon)) :not(.aiGeneratedContainer))")
