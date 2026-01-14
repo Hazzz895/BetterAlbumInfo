@@ -5,9 +5,14 @@
 - Суммарная длительность всего плейлиста
 - Просмотр других плейлистов от автора при нажатии на его имя
 - Иконка которая указывает на то, что плейлист приватный
-- Жанр альбома
+- Жанр альбома и артиста
 - ID альбома
 - Изменение количества ежемесячных прослушиваний на странице артиста
+- Иконка если артист - нейросеть
+- Описание артиста
+- Количество альбомов артиста
+- Дата рождения артиста
       
 <img width="1153" height="247" alt="image" src="https://github.com/user-attachments/assets/af08b65a-86ab-4e3e-957e-28093091c584" />
 <img width="932" height="247" alt="image" src="https://github.com/user-attachments/assets/8ff84346-2fc3-4e5a-bd55-ad7eb519037a" />
+<img width="853" height="445" alt="image" src="https://github.com/user-attachments/assets/53bfacb1-8e5b-4638-90cc-e0f824d2e6b1" />

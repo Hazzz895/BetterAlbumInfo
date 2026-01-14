@@ -140,14 +140,41 @@
     hookMethod(ALBUM_GETTER, "getAlbumWithTracksIds", afterGotEntity)
     hookMethod(ALBUM_GETTER, "getAlbumWithRichTracks", afterGotEntity)
     hookMethod(PLAYLIST_GETTER, "getPlaylist", afterGotEntity)
-    hookMethod(ARTIST_GETTER, "getInfo", afterGotEntity)
-    hookMethod(ARTIST_GETTER, "getBriefInfo", afterGotEntity)
+    hookMethod(ARTIST_GETTER, "getInfo", afterGotArtistInfo)
+    hookMethod(ARTIST_GETTER, "getBriefInfo", afterGotBriefArtistInfo)
 
     let lastEntity = null
 
+    let _cachedBriefArtistInfos = {}
+    function afterGotBriefArtistInfo(t, method, result, ...args) {
+        _cachedBriefArtistInfos[result.artist.id.toString()] = result
+        if (lastEntity.entity?.artist?.id == result?.artist?.id) {
+            afterAfterGotArtistAnyInfo(t, method, result, ...args)
+        }
+        else {
+            //console.log(result)
+        }
+    }
+
+    function afterGotArtistInfo(t, method, result, ...args) {
+        const cached = _cachedBriefArtistInfos[result.artist.id.toString()]
+        if (cached) {
+            result = cached
+        }
+        afterAfterGotArtistAnyInfo(t, method, result, ...args)
+    }
+
+    function afterAfterGotArtistAnyInfo(t, method, result, ...args) {
+        handleArtist(result, document)
+        afterGotEntity(t, method, result, ...args)
+    }
+
     function afterGotEntity(t, method, result, ...args) {
         lastEntity = {
-            "type": method?.name?.includes("Album") ? "album" : method?.name?.includes("Playlist") ? "playlist" : "artist",
+            "type":
+                method?.name?.includes("Album") ? "album" : 
+                method?.name?.includes("Playlist") ? "playlist" : 
+                "artist",
             "entity": result
         }
         //console.log(lastEntity)
@@ -234,10 +261,18 @@
 
     const pluralFormatter = new Intl.PluralRules('ru-RU')
 
-    function getPluralTrackString(num) {
+    function getPluralString(num, prefix) {
         const rule = pluralFormatter.select(num);
         const suffix = numSuffixes.get(rule);
-        return `${num} трек${suffix}`;
+        return `${num} ${prefix}${suffix}`;
+    }
+
+    function getPluralTrackString(num) {
+        return getPluralString(num, "трек")
+    }
+
+    function getPluralAlbumString(num) {
+        return getPluralString(num, "альбом")
     }
 
     function getLocalizatedDate(date) {
@@ -283,51 +318,8 @@
                         const type = lastEntity.type
                         const entity = lastEntity.entity
 
-                        async function addAiBadge(artistsIds) {
-                            if (!getSetting("artist_ai", false)) return
-                            if (!Array.isArray(artistsIds)) {
-                                artistsIds = [artistsIds]
-                            }
-                            
-                            const promises = artistsIds.map(id => isAi(id));
-                            const results = await Promise.all(promises);
-                            const isAiGenerated = results.some(result => result === true);
-                            if (!isAiGenerated) return
-                            
-                            container = node.querySelector(".PageHeaderTitle_stickyTitle__CL1m4:is(:not(:has(.aiGeneratedIcon)) :not(.aiGeneratedContainer))")
-                            if (!container) return
-                            container.classList.add("titleContainer")
-                            const cntr = document.createElement('div')
-                            cntr.classList.add("aiGeneratedContainer")
-                            const span = document.createElement("span")
-                            span.textContent = "Сгенерировано ИИ"
-                            const badge = document.createElement("div")
-                            badge.innerHTML = `<svg 
-                                                class="CommonControlsBar_ugcIcon__OV0Cl l3tE1hAMmBj2aoPPwU08 aiGeneratedIcon" 
-                                                focusable="false" 
-                                                aria-label="Сгенерировано ИИ" 
-                                                aria-hidden="false" 
-                                                xmlns="http://www.w3.org/2000/svg" 
-                                                version="1.1" 
-                                                xmlns:xlink="http://www.w3.org/1999/xlink" 
-                                                width="512" 
-                                                height="512" 
-                                                x="0" 
-                                                y="0" 
-                                                viewBox="0 0 512 512">
-                                                    <g>
-                                                        <path d="M440.123 317.331c12.299-14.459 19.745-33.169 19.745-53.594 0-40.92-29.829-74.984-68.88-81.644a61.11 61.11 0 0 0 9.451-32.698c0-65.985-53.683-119.667-119.667-119.667h-5.511c-8.284 0-15 6.716-15 15 0 23.804-19.366 43.17-43.17 43.17H173.06c-33.91 0-61.497 27.587-61.497 61.497a61.11 61.11 0 0 0 9.451 32.698c-39.051 6.661-68.88 40.725-68.88 81.645 0 20.425 7.445 39.135 19.744 53.594C31.365 322.717 0 357.467 0 399.428c0 45.681 37.164 82.845 82.845 82.845h346.31c45.681 0 82.845-37.165 82.845-82.846 0-41.96-31.365-76.71-71.877-82.096zM173.059 117.897h44.031c35.086 0 64.483-24.821 71.552-57.828 45.77 4 81.796 42.535 81.796 89.325 0 17.368-14.129 31.497-31.497 31.497H173.059c-17.368 0-31.497-14.129-31.497-31.497s14.129-31.497 31.497-31.497zm-38.081 92.995h242.045c29.139 0 52.845 23.707 52.845 52.846s-23.706 52.845-52.845 52.845H134.978c-29.139 0-52.845-23.707-52.845-52.846s23.705-52.845 52.845-52.845zm294.177 241.381H82.845C53.707 452.273 30 428.566 30 399.427s23.707-52.845 52.845-52.845h346.31c29.139 0 52.845 23.706 52.845 52.845s-23.707 52.846-52.845 52.846z">
-                                                        </path>
-                                                    </g>
-                                                </svg>`
-                            
-                            cntr.appendChild(badge.firstChild)
-                            cntr.appendChild(span)
-                            container.appendChild(cntr)
-                        }
-
                         if (type === "album") {
-                            await addAiBadge(entity.artists.map(x => x.id))
+                            await addAiBadge(node, entity.artists.map(x => x.id))
                             const releaseDateNode = node.querySelector?.(
                                 '[data-test-id="ALBUM_RELEASE_DATE"]')
                             if (
@@ -550,31 +542,145 @@
                             }
                         }
                         else if (type === "artist") {
-                            await addAiBadge(entity.artist.id)
-                            if (entity.stats?.lastMonthListenersDelta && entity.stats?.lastMonthListenersDelta != 0 && getSetting("delta")) {
-                                const monthListenersNode = node.querySelector?.(
-                                        '[data-test-id="ARTIST_LISTENERS_COUNT"]')
-                                if (monthListenersNode && !node.querySelector('.DeltaListeners')) {
-                                    const delta = entity.stats.lastMonthListenersDelta
-                                    const deltaNode = document.createElement('span')
-                                    deltaNode.classList.add("g3qWNP6xl__7qxNmtrvd", "_3_Mxw7Si7j2g4kWjlpR", "DeltaListeners")
-                                    if (delta > 0) {
-                                        deltaNode.textContent = "+"
-                                        deltaNode.classList.add("PositiveDeltaListeners")
-                                    }
-                                    else {
-                                        deltaNode.classList.add("NegativeDeltaListeners")
-                                    }
-                                    deltaNode.textContent += delta.toLocaleString() + " за последние 28 дней"
-                                    monthListenersNode.parentElement.appendChild(deltaNode)
-                                }
-                            }
+                            handleArtist(entity, node)
                         }
                 });
             }
             }
         });
 
+    async function addAiBadge(node, artistsIds) {
+        if (!getSetting("artist_ai", false)) return
+        if (!Array.isArray(artistsIds)) {
+            artistsIds = [artistsIds]
+        }
+        
+        const promises = artistsIds.map(id => isAi(id));
+        const results = await Promise.all(promises);
+        const isAiGenerated = results.some(result => result === true);
+        if (!isAiGenerated) return
+        
+        container = node.querySelector(".PageHeaderTitle_stickyTitle__CL1m4:is(:not(:has(.aiGeneratedIcon)) :not(.aiGeneratedContainer))")
+        if (!container) return
+        container.classList.add("titleContainer")
+        const cntr = document.createElement('div')
+        cntr.classList.add("aiGeneratedContainer")
+        const span = document.createElement("span")
+        span.textContent = "Сгенерировано ИИ"
+        const badge = document.createElement("div")
+        badge.innerHTML = `<svg 
+                            class="CommonControlsBar_ugcIcon__OV0Cl l3tE1hAMmBj2aoPPwU08 aiGeneratedIcon" 
+                            focusable="false" 
+                            aria-label="Сгенерировано ИИ" 
+                            aria-hidden="false" 
+                            xmlns="http://www.w3.org/2000/svg" 
+                            version="1.1" 
+                            xmlns:xlink="http://www.w3.org/1999/xlink" 
+                            width="512" 
+                            height="512" 
+                            x="0" 
+                            y="0" 
+                            viewBox="0 0 512 512">
+                                <g>
+                                    <path d="M440.123 317.331c12.299-14.459 19.745-33.169 19.745-53.594 0-40.92-29.829-74.984-68.88-81.644a61.11 61.11 0 0 0 9.451-32.698c0-65.985-53.683-119.667-119.667-119.667h-5.511c-8.284 0-15 6.716-15 15 0 23.804-19.366 43.17-43.17 43.17H173.06c-33.91 0-61.497 27.587-61.497 61.497a61.11 61.11 0 0 0 9.451 32.698c-39.051 6.661-68.88 40.725-68.88 81.645 0 20.425 7.445 39.135 19.744 53.594C31.365 322.717 0 357.467 0 399.428c0 45.681 37.164 82.845 82.845 82.845h346.31c45.681 0 82.845-37.165 82.845-82.846 0-41.96-31.365-76.71-71.877-82.096zM173.059 117.897h44.031c35.086 0 64.483-24.821 71.552-57.828 45.77 4 81.796 42.535 81.796 89.325 0 17.368-14.129 31.497-31.497 31.497H173.059c-17.368 0-31.497-14.129-31.497-31.497s14.129-31.497 31.497-31.497zm-38.081 92.995h242.045c29.139 0 52.845 23.707 52.845 52.846s-23.706 52.845-52.845 52.845H134.978c-29.139 0-52.845-23.707-52.845-52.846s23.705-52.845 52.845-52.845zm294.177 241.381H82.845C53.707 452.273 30 428.566 30 399.427s23.707-52.845 52.845-52.845h346.31c29.139 0 52.845 23.706 52.845 52.845s-23.707 52.846-52.845 52.846z">
+                                    </path>
+                                </g>
+                            </svg>`
+        
+        cntr.appendChild(badge.firstChild)
+        cntr.appendChild(span)
+        container.appendChild(cntr)
+    }
+    
+    async function handleArtist(entity, node) {
+        const artist = entity.artist
+        await addAiBadge(node, artist.id)
+        if (entity.stats?.lastMonthListenersDelta && entity.stats?.lastMonthListenersDelta != 0 && getSetting("delta")) {
+            const monthListenersNode = node.querySelector?.(
+                    '[data-test-id="ARTIST_LISTENERS_COUNT"]')
+            if (monthListenersNode && !node.querySelector('.DeltaListeners')) {
+                const delta = entity.stats.lastMonthListenersDelta
+                const deltaNode = document.createElement('span')
+                deltaNode.classList.add("g3qWNP6xl__7qxNmtrvd", "_3_Mxw7Si7j2g4kWjlpR", "DeltaListeners")
+                if (delta > 0) {
+                    deltaNode.textContent = "+"
+                    deltaNode.classList.add("PositiveDeltaListeners")
+                }
+                else {
+                    deltaNode.classList.add("NegativeDeltaListeners")
+                }
+                deltaNode.textContent += delta.toLocaleString() + " за последние 28 дней"
+                monthListenersNode.parentElement.appendChild(deltaNode)
+            }
+        }
+
+        if (artist.initDate || artist.genres || artist.counts || artist.description || entity.description) {
+            const artistMetaContainer = node.querySelector?.(".PageHeaderArtist_meta__ZAlx_")
+            if (artistMetaContainer) {
+                const metaCotainer = artistMetaContainer.closest('.PageHeaderBase_meta__bMvfR')
+                if (metaCotainer) {
+                    const description = artist?.description?.text || entity.description
+                    let descriptionSpanNode = metaCotainer.querySelector('.PageHeaderPlaylistMeta_description__edoVx')
+                    if (description && getSetting("description") && !descriptionSpanNode) {
+                        descriptionSpanNode = document.createElement("span")
+                        descriptionSpanNode.textContent = description
+                        descriptionSpanNode.classList.add("_MWOVuZRvUQdXKTMcOPx", "g3qWNP6xl__7qxNmtrvd", "_3_Mxw7Si7j2g4kWjlpR", "PageHeaderPlaylistMeta_description__edoVx")
+                        metaCotainer.insertBefore(descriptionSpanNode, artistMetaContainer)
+                    }
+
+                    if (artist.initDate || artist.genres || artist.counts) {
+                        let betterInfoSpan = metaCotainer.querySelector('.betterInfoSpan')
+                        if (!betterInfoSpan) {
+                            betterInfoSpan = document.createElement("span")
+                            betterInfoSpan.classList.add("betterInfoSpan", "_MWOVuZRvUQdXKTMcOPx", "LezmJlldtbHWqU7l1950", "oyQL2RSmoNbNQf3Vc6YI", "g3qWNP6xl__7qxNmtrvd", "_3_Mxw7Si7j2g4kWjlpR", "PageHeaderPlaylistMeta_updatedText__FSo_0")
+                            metaCotainer.insertBefore(betterInfoSpan, descriptionSpanNode?.nextSibling || metaCotainer.firstChild)
+                        } 
+
+                        function addInfo(textOrNode, id) {
+                            id = "BetterInfoAlbum_betterInfoSpan#" + id
+                            const existingNode = document.getElementById(id)
+
+                            let node = textOrNode;
+                            if (!(textOrNode instanceof Node)) {
+                                node = document.createElement("div")
+                                node.textContent = textOrNode
+                            }
+
+                            if ((!existingNode && betterInfoSpan.childElementCount > 0) || (existingNode && Array.from(existingNode.parentElement.children).indexOf(existingNode) > 0)) {
+                                node.classList.add("PageHeaderAlbumMeta_year_dot__TrSFr")
+                            }
+
+                            node.id = id
+
+                            if (!existingNode) {
+                                betterInfoSpan.appendChild(node)
+                            }
+                            else {
+                                existingNode.replaceWith(node)
+                            }
+                        }
+
+                        if (artist.counts?.directAlbums && getSetting("albums")) {
+                            addInfo(getPluralAlbumString(artist.counts?.directAlbums), "albums")
+                        }
+
+                        if (artist.counts?.tracks && getSetting("tracks")) {
+                            addInfo(getPluralTrackString(artist.counts?.tracks), "tracks")
+                        }
+
+                        if (artist.initDate && getSetting("date")) {
+                            addInfo("Дата рождения: " + getLocalizatedDate(artist.initDate), "date")
+                        }
+
+                        if (artist.genres && artist.genres.length > 0 && getSetting("genres")) {
+                            addInfo("Жанры: " + artist.genres.map(x => getLocalizatedGenre(x)).join(', '), "genres")
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
     observer.observe(document.body, {
         childList: true,
         subtree: true,

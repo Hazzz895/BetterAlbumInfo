@@ -107,7 +107,7 @@
                 {
                     "id": "artist_delta",
                     "name": "Изменение слушателей за месяц",
-                    "description": "Показывать изменение количество слушателей артиста за последние 28 дней ",
+                    "description": "Показывать изменение количество слушателей артиста за последние 28 дней в его метаданных",
                     "type": "button",
                     "bool": true,
                     "defaultParameter": true
@@ -116,6 +116,46 @@
                     "id": "artist_ai",
                     "name": "ИИ-исполнитель",
                     "description": "Добавляет к названию артиста и к его альбомам иконку, которая указывает на то, что его треки написаны нейронными сетями",
+                    "type": "button",
+                    "bool": true,
+                    "defaultParameter": true
+                },
+                {
+                    "id": "artist_description",
+                    "name": "Описание",
+                    "description": "Добавляет описание артиста в его метаданные",
+                    "type": "button",
+                    "bool": true,
+                    "defaultParameter": false
+                },
+                {
+                    "id": "artist_albums",
+                    "name": "Количество альбомов (если доступно)",
+                    "description": "Добавляет количество альбомов артиста в его метаданные, если доступно",
+                    "type": "button",
+                    "bool": true,
+                    "defaultParameter": true
+                },
+                {
+                    "id": "artist_date",
+                    "name": "Дата рождения (если доступно)",
+                    "description": "Добавляет дату рождения/регистрации артиста в его метаданные, если доступно",
+                    "type": "button",
+                    "bool": true,
+                    "defaultParameter": true
+                },
+                {
+                    "id": "artist_genres",
+                    "name": "Жанры (если доступно)",
+                    "description": "Добавляет жанры артиста в его метаданные, если доступно",
+                    "type": "button",
+                    "bool": true,
+                    "defaultParameter": true
+                },
+                {
+                    "id": "artist_tracks",
+                    "name": "Количество треков (если доступно)",
+                    "description": "Добавляет количество треков артиста в его метаданные, если доступно",
                     "type": "button",
                     "bool": true,
                     "defaultParameter": true
