@@ -85,26 +85,31 @@
         return;
     }
 
+    function getModuleClass(moduleNum, c = undefined) {
+        const moduleContainer = appRequire(moduleNum); 
+            
+        if (!moduleContainer) {
+            console.error("Failed to get module")
+            return null;
+        }
+        
+        if (!c) {
+            c = Object.keys(moduleContainer)[0]
+        }
+
+        if (!moduleContainer[c]) {
+            console.error("Failed to find target class.");
+            return null;
+        }
+
+        return moduleContainer[c]
+    }
+
     function hookMethod(moduleNum, methodName, hook, c = undefined) {
         try {
-            const moduleContainer = appRequire(moduleNum); 
-            
-            if (!moduleContainer) {
-                console.error("Failed to get module")
-            }
-            
-            if (!c) {
-                c = Object.keys(moduleContainer)[0]
-            }
+            const cls = getModuleClass(moduleNum, c)
 
-            if (!moduleContainer[c]) {
-                console.error("Failed to find target class.");
-                return;
-            }
-
-            const cls = moduleContainer[c];
-
-            if (!cls.prototype[methodName]) {
+            if (!cls?.prototype[methodName]) {
                 console.error(`Failed to find method ` + methodName + `.`);
                 return;
             }
