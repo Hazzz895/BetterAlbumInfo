@@ -148,7 +148,7 @@
     let _cachedBriefArtistInfos = {}
     function afterGotBriefArtistInfo(t, method, result, ...args) {
         _cachedBriefArtistInfos[result.artist.id.toString()] = result
-        if (lastEntity.entity?.artist?.id == result?.artist?.id) {
+        if (lastEntity?.entity?.artist?.id == result?.artist?.id) {
             afterAfterGotArtistAnyInfo(t, method, result, ...args)
         }
         else {
