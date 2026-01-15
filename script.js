@@ -692,6 +692,10 @@
                         if (artist.genres && artist.genres.length > 0 && getSetting("genres")) {
                             addInfo("Жанр" + (artist.genres.length == 1 ? "ы" : "") + ": " + artist.genres.map(x => getLocalizatedGenre(x)).join(', '), "genres")
                         }
+
+                        if (artist.countries && artist.countries.length > 0 && getSetting("country")) {
+                            addInfo(artist.countries.join(", ", "country"))
+                        }
                     }
                 }
             }
