@@ -161,7 +161,12 @@
         if (cached) {
             result = cached
         }
+
         afterAfterGotArtistAnyInfo(t, method, result, ...args)
+
+        if (!cached && getSetting("brief") && (getSetting("albums") || getSetting("date") || getSetting("genres") || getSetting("tracks"))) {
+            t.getBriefInfo(...args)
+        }
     }
 
     function afterAfterGotArtistAnyInfo(t, method, result, ...args) {
