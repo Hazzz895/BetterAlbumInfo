@@ -113,9 +113,9 @@
                     "defaultParameter": true
                 },
                 {
-                    "id": "artist_ai",
-                    "name": "ИИ-исполнитель",
-                    "description": "Добавляет к названию артиста и к его альбомам иконку, которая указывает на то, что его треки написаны нейронными сетями",
+                    "id": "artist_description",
+                    "name": "Описание",
+                    "description": "Добавляет описание артиста в его метаданные",
                     "type": "button",
                     "bool": true,
                     "defaultParameter": true
@@ -159,6 +159,14 @@
                     "type": "button",
                     "bool": true,
                     "defaultParameter": true
+                },
+                {
+                    "id": "artist_ai",
+                    "name": "ИИ-исполнитель (🛜)",
+                    "description": "Добавляет к названию артиста и к его альбомам иконку, которая указывает на то, что его треки написаны нейронными сетями. Отправляет дополнительный запрос в сеть при открытии страницы артиста.",
+                    "type": "button",
+                    "bool": false,
+                    "defaultParameter": false
                 }
             ]
         }
