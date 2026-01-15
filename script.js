@@ -165,8 +165,8 @@
     }
 
     function afterAfterGotArtistAnyInfo(t, method, result, ...args) {
-        handleArtist(result, document)
         afterGotEntity(t, method, result, ...args)
+        handleArtist(result, document)
     }
 
     function afterGotEntity(t, method, result, ...args) {
