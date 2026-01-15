@@ -152,7 +152,7 @@
             afterAfterGotArtistAnyInfo(t, method, result, ...args)
         }
         else {
-            //console.log(result)
+            console.debug(result)
         }
     }
 
@@ -177,7 +177,7 @@
                 "artist",
             "entity": result
         }
-        //console.log(lastEntity)
+        console.debug(lastEntity)
     }
 
     const genres = {
