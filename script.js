@@ -345,7 +345,7 @@
                                 let genreNode;
                                 if (entity.genre && getSetting("genre")) {
                                     genreNode = releaseDateNode.cloneNode(true)
-                                    genreNode.textContent = "Жанр: " + getLocalizatedGenre(entity.genre)
+                                    genreNode.textContent = getLocalizatedGenre(entity.genre)
                                 }
 
                                 if (entity.releaseDate && getSetting("date")) {
@@ -690,7 +690,7 @@
                         }
 
                         if (artist.genres && artist.genres.length > 0 && getSetting("genres")) {
-                            addInfo("Жанр" + (artist.genres.length == 1 ? "ы" : "") + ": " + artist.genres.map(x => getLocalizatedGenre(x)).join(', '), "genres")
+                            addInfo(artist.genres.map(x => getLocalizatedGenre(x)).join(', '), "genres")
                         }
 
                         if (artist.countries && artist.countries.length > 0 && getSetting("country")) {
