@@ -681,7 +681,7 @@
                         }
 
                         if (artist.genres && artist.genres.length > 0 && getSetting("genres")) {
-                            addInfo("Жанры: " + artist.genres.map(x => getLocalizatedGenre(x)).join(', '), "genres")
+                            addInfo("Жанр" + (artist.genres.length == 1 ? "ы" : "") + ": " + artist.genres.map(x => getLocalizatedGenre(x)).join(', '), "genres")
                         }
                     }
                 }
