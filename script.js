@@ -196,15 +196,17 @@
         "alternative": {g:"Альтернатив", s:"m"},
         "edmgenre": {g:"EDM", s:"m"},
         "dance": {g:"Танцевальная Музыка", s:"w"},
-        "rnb": {g:"R&B", s:"m"},
+        "rnb": {g:"R&B (Ритм-н-блюз)", s:"m"},
         "techno": {g:"Техно", s:"m"},
         "disco": {g:"Диско", s:"m"},
         "house": {g:"Хаус", s:"m"},
         "breakbeatgenre": {g:"Брейкбит", s:"m"},
         "funk": {g:"Фанк", s:"m"},
         "dub": {g:"Даб", s:"m"},
+        "dnb": {g:"D&B (Драм-н-бейс)", s:"m"},
         "soundtrack": {g:"Саундтрек", s:"m"},
         "films": {g:"Музыка к фильму", s:"w"},
+        "tvseries": {g:"Музыка к сериалу", s:"w"},
         "punk": {g:"Панк", s:"m"},
         "industrial": {g:"Индастриал", s:"m"},
         "triphopgenre": {g:"Трипхоп", s:"m"},
@@ -214,7 +216,10 @@
         "stonerrock": {g:"Стоунер-рок", s:"m"},
         "animated": {g:"Анимация", s:"w"},
         "children": {g:"Музыка для детей", s:"w"},
-        "metal": {g:"Метал", s:"m"},
+        "metal": {g:"Металл", s:"m"},
+        "holiday": {g:"Праздничная музыка", s:"w"},
+        "phonkgenre": {g:"Фонк", s:"m"},
+        "folk": {g:"Фолк", s:"m"},
     }
 
     const suffixes = {
@@ -225,7 +230,11 @@
         "foreign_m": "Иностранный",
         "foreign_w": "Иностранная",
         "classic_m": "Классический",
-        "classic_w": "Классическая"
+        "classic_w": "Классическая",
+        "latin_m": "Латинский",
+        "latin_w": "Латинская",
+        "african_m": "Африканский",
+        "african_w": "Африканская",
     }
 
     /**
