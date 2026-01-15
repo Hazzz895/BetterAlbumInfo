@@ -2,7 +2,7 @@
     "name": "BetterAlbumInfo",
     "author": "Hazzz895",
     "description": "Добавляет больше информации о альбомах и плейлистах",
-    "version": "1.5.0",
+    "version": "1.6.0",
     "script": "script.js",
     "css": "style.css",
     "type": "script",
