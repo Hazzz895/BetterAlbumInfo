@@ -613,7 +613,8 @@
     async function handleArtist(entity, node) {
         const artist = entity.artist
         await addAiBadge(node, artist.id)
-        if (entity.stats?.lastMonthListenersDelta && entity.stats?.lastMonthListenersDelta != 0 && getSetting("delta")) {
+        const stats = entity.stats || artist.stats
+        if (stats?.lastMonthListenersDelta && stats?.lastMonthListenersDelta != 0 && getSetting("delta")) {
             const monthListenersNode = node.querySelector?.(
                     '[data-test-id="ARTIST_LISTENERS_COUNT"]')
             if (monthListenersNode && !node.querySelector('.DeltaListeners')) {
