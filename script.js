@@ -633,6 +633,45 @@
             }
         }
 
+        const likes = entity.likesCount || entity.artist.likesCount
+        if (likes && likes != 0 && getSetting("likes")) {
+            const button = node.querySelector('.PageHeaderArtist_controls__U_6g7 [data-test-id="LIKE_BUTTON"]:not(:has(span._3_Mxw7Si7j2g4kWjlpR))')
+            if (button) {
+                button.style = "display: flex; align-items: center; padding-inline-end: var(--ym-spacer-size-xl); padding-inline-start: var(--ym-spacer-size-xl);" // приходиться использовать стили вместо классов т.к ям слишком часто обнуляет кастомные классы
+                const span = button.querySelector("span.JjlbHZ4FaP9EAcR_1DxF")
+                const liked = button.ariaPressed === "true"
+
+                let likesNode;
+                function updateButton(likes) {
+                    if (likesNode) {
+                        likesNode.remove()
+                    }
+
+                    span.classList.add("elJfazUBui03YWZgHCbW")
+                    button.classList.add("kc5CjvU5hT9KEj0iTt3C")
+
+                    likesNode = document.createElement("span")
+                    likesNode.classList.add("_MWOVuZRvUQdXKTMcOPx", "_oBLf5gprWsKjCw4Ce58", "_3_Mxw7Si7j2g4kWjlpR",)
+                    likesNode.textContent = likes.toLocaleString()
+
+                    button.appendChild(likesNode)
+                }
+
+                updateButton(likes)
+
+                button.addEventListener("click", () => {
+                    setTimeout(() => {
+                            if (button.ariaPressed === "true") {
+                            updateButton(likes + (liked ? 0 : 1))
+                        }
+                        else {
+                            updateButton(likes + (liked ? -1 : 0))
+                        }
+                    }, 0)
+                })
+            }
+        }
+
         if (artist.initDate || artist.genres || artist.counts || artist.description || entity.description) {
             const artistMetaContainer = node.querySelector?.(".PageHeaderArtist_meta__ZAlx_")
             if (artistMetaContainer) {
