@@ -315,16 +315,16 @@
                         const parent = node.closest('div[data-index]')
                         const index = parent.getAttribute("data-index")
                         const position = parseInt(index) + 1
-                        if (isNaN(position) || (positionNode && positionNode.textContent === positionNode.toLocaleString())) return;
+                        if (isNaN(position)) return;
                         if (!positionNode) {
                             positionNode = document.createElement('div')
                             positionNode.classList.add("_MWOVuZRvUQdXKTMcOPx", "Z_WIr2W8JU4MPQek3hgR", "ZYV27jeWd30QDXu4GhaH", "PlayButtonWithPosition_position__wk3OT", "PositionIndex")
                             node.insertBefore(positionNode, node.firstChild)
-                        }
-                        const dragAndDrop = node.querySelector('.DragAndDropIcon_root__OstQU')
-                        if (dragAndDrop) {
-                            dragAndDrop.classList.add("DragAndDrop_positionIndex")
-                            positionNode.classList.add("PositionIndex_dragAndDrop")
+                            const dragAndDrop = node.querySelector('.DragAndDropIcon_root__OstQU')
+                            if (dragAndDrop) {
+                                dragAndDrop.classList.add("DragAndDrop_positionIndex")
+                                positionNode.classList.add("PositionIndex_dragAndDrop")
+                            }
                         }
                         positionNode.textContent = position.toLocaleString()
                     })
