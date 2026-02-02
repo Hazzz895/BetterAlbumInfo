@@ -1,19 +1,5 @@
 
 (function() {
-
-    let _aiArtistsCache = { }
-    async function isAi(artistId) {
-        let result = _aiArtistsCache[artistId]
-        if (result !== null && result !== undefined) {
-            return _aiArtistsCache[artistId]
-        }
-        result = (await fetch('https://iimuzyka.top/' + artistId.toString(), {
-            redirect: 'manual'
-        })).ok
-        _aiArtistsCache[artistId] = result
-        return result 
-    }
-
     let settings = getSettings();
     function getSettings() {
         try {
@@ -23,7 +9,26 @@
                 response.json().then(d => {
                     const { data } = d
                     if (data?.sections) {
-                        settings = transformJSON(data);
+                        const result = {};
+                        data.sections.forEach(section => {
+                            section.items.forEach(item => {
+                                if (item.type === "text" && item.buttons) {
+                                    result[item.id] = {};
+                                    item.buttons.forEach(button => {
+                                        result[item.id][button.id] = {
+                                            value: button.text,
+                                            default: button.defaultParameter
+                                        };
+                                    });
+                                } else {
+                                    result[item.id] = {
+                                        value: item.bool || item.input || item.selected || item.value || item.filePath,
+                                        default: item.defaultParameter
+                                    };
+                                }
+                            });
+                        });
+                        settings = result
                     }
                 });
                 
@@ -32,32 +37,6 @@
         } catch (error) {
             console.error(error);
             return null;
-        }
-    }
-
-    function transformJSON(data) {
-        const result = {};
-        try {
-            data.sections.forEach(section => {
-                section.items.forEach(item => {
-                    if (item.type === "text" && item.buttons) {
-                        result[item.id] = {};
-                        item.buttons.forEach(button => {
-                            result[item.id][button.id] = {
-                                value: button.text,
-                                default: button.defaultParameter
-                            };
-                        });
-                    } else {
-                        result[item.id] = {
-                            value: item.bool || item.input || item.selected || item.value || item.filePath,
-                            default: item.defaultParameter
-                        };
-                    }
-                });
-            });
-        } finally {
-            return result;
         }
     }
 
@@ -144,17 +123,6 @@
     hookMethod(ARTIST_GETTER, "getBriefInfo", afterGotBriefArtistInfo)
 
     let lastEntity = null
-
-    let _cachedBriefArtistInfos = {}
-    function afterGotBriefArtistInfo(t, method, result, ...args) {
-        _cachedBriefArtistInfos[result.artist.id.toString()] = result
-        if (lastEntity?.entity?.artist?.id == result?.artist?.id) {
-            afterAfterGotArtistAnyInfo(t, method, result, ...args)
-        }
-        else {
-            console.debug(result)
-        }
-    }
 
     function afterGotArtistInfo(t, method, result, ...args) {
         const cached = _cachedBriefArtistInfos[result.artist.id.toString()]
@@ -303,6 +271,32 @@
                 month: 'long',   
                 year:  date.getFullYear() == new Date(Date.now()).getFullYear() ? undefined : 'numeric',
             })
+    }
+
+
+    let _aiArtistsCache = { }
+    async function isAi(artistId) {
+        let result = _aiArtistsCache[artistId]
+        if (result !== null && result !== undefined) {
+            return _aiArtistsCache[artistId]
+        }
+        result = (await fetch('https://iimuzyka.top/' + artistId.toString(), {
+            redirect: 'manual'
+        })).ok
+        _aiArtistsCache[artistId] = result
+        return result 
+    }
+
+    
+    let _cachedBriefArtistInfos = {}
+    function afterGotBriefArtistInfo(t, method, result, ...args) {
+        _cachedBriefArtistInfos[result.artist.id.toString()] = result
+        if (lastEntity?.entity?.artist?.id == result?.artist?.id) {
+            afterAfterGotArtistAnyInfo(t, method, result, ...args)
+        }
+        else {
+            console.debug(result)
+        }
     }
 
     const observer = new MutationObserver((mutationsList) => {
