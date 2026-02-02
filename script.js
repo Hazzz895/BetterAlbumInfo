@@ -164,7 +164,7 @@
 
         afterAfterGotArtistAnyInfo(t, method, result, ...args)
 
-        if (!cached && getSetting("brief") && (getSetting("albums") || getSetting("date") || getSetting("genres") || getSetting("tracks"))) {
+        if (!cached && getSetting("brief") && (getSetting("albums") || getSetting("date") || getSetting("end") || getSetting("genres") || getSetting("country") || getSetting("tracks") || getSetting("aka"))) {
             t.getBriefInfo(...args)
         }
     }
@@ -678,7 +678,7 @@
         var fullNames = artist.fullNames == null || artist.fullNames == undefined ? null : artist.fullNames.filter(x => x != artist.name)
         if (fullNames && fullNames.length == 0) fullNames = null
 
-        if (artist.initDate || artist.genres || artist.counts || artist.description || entity.description || artist.fullNames) {
+        if (artist.initDate || artist.countries || artist.endDate || artist.genres || artist.counts || artist.description || entity.description || fullNames) {
             const artistMetaContainer = node.querySelector?.(".PageHeaderArtist_meta__ZAlx_")
             if (artistMetaContainer) {
                 const metaCotainer = artistMetaContainer.closest('.PageHeaderBase_meta__bMvfR')
@@ -692,7 +692,7 @@
                         metaCotainer.insertBefore(descriptionSpanNode, artistMetaContainer)
                     }
 
-                    if (artist.initDate || artist.genres || artist.counts || artist.fullNames) {
+                    if (artist.initDate || artist.countries || artist.endDate || artist.genres || artist.counts || fullNames) {
                         let betterInfoSpan = metaCotainer.querySelector('.betterInfoSpan')
                         if (!betterInfoSpan) {
                             betterInfoSpan = document.createElement("span")
@@ -742,7 +742,7 @@
                             addInfo("Дата рождения: " + getLocalizatedDate(date) + (isBirthdayToday ? "🎂" : ""), "date")
                         }
 
-                        if (artist.fullNames && getSetting("end")) {
+                        if (artist.endDate && artist.id != 36791 && getSetting("end")) {
                             addInfo("Дата кончины: " + getLocalizatedDate(artist.endDate), "end")
                         }
 
