@@ -675,7 +675,7 @@
             }
         }
 
-        if (artist.initDate || artist.genres || artist.counts || artist.description || entity.description) {
+        if (artist.initDate || artist.genres || artist.counts || artist.description || entity.description || artist.fullNames) {
             const artistMetaContainer = node.querySelector?.(".PageHeaderArtist_meta__ZAlx_")
             if (artistMetaContainer) {
                 const metaCotainer = artistMetaContainer.closest('.PageHeaderBase_meta__bMvfR')
@@ -689,7 +689,7 @@
                         metaCotainer.insertBefore(descriptionSpanNode, artistMetaContainer)
                     }
 
-                    if (artist.initDate || artist.genres || artist.counts) {
+                    if (artist.initDate || artist.genres || artist.counts || artist.fullNames) {
                         let betterInfoSpan = metaCotainer.querySelector('.betterInfoSpan')
                         if (!betterInfoSpan) {
                             betterInfoSpan = document.createElement("span")
@@ -731,6 +731,10 @@
 
                         if (artist.initDate && getSetting("date")) {
                             addInfo("Дата рождения: " + getLocalizatedDate(artist.initDate), "date")
+                        }
+
+                        if (artist.fullNames && artist.fullNames.length > 0 && getSetting("aka")) {
+                            addInfo("AKA: " + artist.fullNames.map(x => getLocalizatedGenre(x)).join(', '), "aka")
                         }
 
                         if (artist.genres && artist.genres.length > 0 && getSetting("genres")) {
