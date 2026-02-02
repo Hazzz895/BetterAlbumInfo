@@ -84,14 +84,6 @@
                     "defaultParameter": true
                 },
                 {
-                    "id": "album_id",
-                    "name": "ID альбома",
-                    "description": "Показывать ID альбома в его подзаголовке",
-                    "type": "button",
-                    "bool": true,
-                    "defaultParameter": true
-                },
-                {
                     "id": "album_trackCount",
                     "name": "Количество треков",
                     "description": "Показывать количество треков в его подзаголовке",

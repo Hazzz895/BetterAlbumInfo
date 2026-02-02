@@ -374,12 +374,6 @@
                                     releaseDateNode.parentElement.append(genreNode)
                                 }
 
-                                if (entity.id && getSetting("id")) {
-                                    const idNode = releaseDateNode.cloneNode(true)
-                                    idNode.textContent = "ID: " + entity.id
-                                    releaseDateNode.parentElement.append(idNode)
-                                }
-
                                 if (entity.trackCount && getSetting("trackCount")) {
                                     const countNode = releaseDateNode.cloneNode(true)
                                     countNode.textContent = getPluralTrackString(entity.trackCount)
