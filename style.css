@@ -70,3 +70,7 @@
     display: flex;
     align-items: center;
 }
+
+.betterInfoSpan {
+    flex-wrap: wrap;
+}
