@@ -730,7 +730,13 @@
                         }
 
                         if (artist.initDate && getSetting("date")) {
-                            addInfo("Дата рождения: " + getLocalizatedDate(artist.initDate), "date")
+                            const date = new Date(artist.initDate)
+                            const today = new Date()
+                            const isBirthdayToday = date.getDay() == date.getDay() &&
+                                    date.getMonth() === today.getMonth() &&
+                                    date.getFullYear() === today.getFullYear();
+
+                            addInfo("Дата рождения: " + getLocalizatedDate(artist.initDate) + (isBirthdayToday ? "🎂" : ""), "date")
                         }
 
                         if (artist.fullNames && artist.fullNames.length > 0 && getSetting("aka")) {
