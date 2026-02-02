@@ -153,6 +153,14 @@
                     "defaultParameter": true
                 },
                 {
+                    "id": "artist_end",
+                    "name": "Дата кончины (если доступно)",
+                    "description": "Добавляет дату кончины/распада артиста в его метаданные, если доступно",
+                    "type": "button",
+                    "bool": true,
+                    "defaultParameter": true
+                },
+                {
                     "id": "artist_aka",
                     "name": "Настоящее имя артиста (если доступно)",
                     "description": "Добавляет имя артиста в его метаданные, если доступно",
