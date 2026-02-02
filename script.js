@@ -735,7 +735,19 @@
                         }
 
                         if (fullNames && fullNames.length > 0 && getSetting("aka")) {
-                            addInfo("AKA " + fullNames.map(x => getLocalizatedGenre(x)).join(', '), "aka")
+                            const div = document.createElement("div")
+                            div.classList.add("aiGeneratedContainer")
+                            const aka = document.createElement("div")
+                            aka.textContent = "AKA"
+                            aka.style.backgroundColor = "var(--ym-controls-color-secondary-outline-enabled_stroke)"
+                            aka.style.borderRadius = "10px"
+                            aka.style.paddingInline = "3px"
+                            aka.style.marginRight = "5px"
+                            div.appendChild(aka)
+                            const span = document.createElement("span")
+                            span.textContent = fullNames.map(x => getLocalizatedGenre(x)).join(', ')
+                            div.appendChild(span)
+                            addInfo(div, "aka")
                         }
 
                         if (artist.genres && artist.genres.length > 0 && getSetting("genres")) {
