@@ -739,7 +739,7 @@
                                     date.getMonth() === today.getMonth() &&
                                     date.getFullYear() === today.getFullYear();
 
-                            addInfo("Дата рождения: " + getLocalizatedDate(artist.initDate) + (isBirthdayToday ? "🎂" : ""), "date")
+                            addInfo("Дата рождения: " + getLocalizatedDate(date) + (isBirthdayToday ? "🎂" : ""), "date")
                         }
 
                         if (artist.fullNames && getSetting("end")) {
