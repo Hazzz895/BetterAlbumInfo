@@ -675,6 +675,9 @@
             }
         }
 
+        var fullNames = artist.fullNames == null || artist.fullNames == undefined ? null : artist.fullNames.filter(x => x != artist.name)
+        if (fullNames && fullNames.length == 0) fullNames = null
+
         if (artist.initDate || artist.genres || artist.counts || artist.description || entity.description || artist.fullNames) {
             const artistMetaContainer = node.querySelector?.(".PageHeaderArtist_meta__ZAlx_")
             if (artistMetaContainer) {
@@ -739,8 +742,12 @@
                             addInfo("Дата рождения: " + getLocalizatedDate(artist.initDate) + (isBirthdayToday ? "🎂" : ""), "date")
                         }
 
-                        if (artist.fullNames && artist.fullNames.length > 0 && getSetting("aka")) {
-                            addInfo("AKA: " + artist.fullNames.map(x => getLocalizatedGenre(x)).join(', '), "aka")
+                        if (artist.fullNames && getSetting("end")) {
+                            addInfo("Дата кончины: " + getLocalizatedDate(artist.endDate), "end")
+                        }
+
+                        if (fullNames && fullNames.length > 0 && getSetting("aka")) {
+                            addInfo("AKA " + fullNames.map(x => getLocalizatedGenre(x)).join(', '), "aka")
                         }
 
                         if (artist.genres && artist.genres.length > 0 && getSetting("genres")) {
