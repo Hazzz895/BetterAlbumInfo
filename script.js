@@ -724,8 +724,7 @@
                             const date = new Date(artist.initDate)
                             const today = new Date()
                             const isBirthdayToday = date.getDay() == date.getDay() &&
-                                    date.getMonth() === today.getMonth() &&
-                                    date.getFullYear() === today.getFullYear();
+                                    date.getMonth() === today.getMonth();
 
                             addInfo("Дата рождения: " + getLocalizatedDate(date) + (isBirthdayToday ? "🎂" : ""), "date")
                         }
