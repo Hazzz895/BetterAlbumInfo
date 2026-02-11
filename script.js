@@ -1,4 +1,3 @@
-
 (function() {
     let settings = getSettings();
     function getSettings() {
@@ -299,6 +298,43 @@
         }
     }
 
+    function showModal(content, title) {
+        const overlay = document.createElement('div');
+        overlay.id = 'BetterAlbumInfo_modal';
+        overlay.classList.add("MorePlaylistsFromUserModal", "ifxS_8bgSnwBoCsyow0E", "t7tk8IYH3tGrhDZJpi3Z", "GKgBufCxWa9erUCTU3Fp")
+
+        const modal = document.createElement('div');
+        modal.classList.add("MorePlaylistsFromUserModal_modal", "ifxS_8bgSnwBoCsyow0E")
+
+        const header = document.createElement('div');
+        header.innerText = title;
+        header.style.marginBottom = "20px";
+        header.style.fontSize = "20px";
+        header.style.fontWeight = "bold";
+
+        const inner = document.createElement('div');
+        const btn = document.createElement('button');
+        btn.classList.add("MorePlaylistsFromUserModal_button")
+        btn.innerText = "Закрыть";
+    
+        btn.onclick = () => close()
+
+        inner.appendChild(content)
+        inner.appendChild(btn);
+        modal.appendChild(header);
+        modal.appendChild(inner);
+        overlay.appendChild(modal);
+        document.body.appendChild(overlay);
+
+        overlay.onclick = (e) => {
+            if (e.target === overlay) close()
+        };
+
+        function close() {
+            overlay.remove();
+        }
+    }
+
     const observer = new MutationObserver((mutationsList) => {
             for (const mutation of mutationsList) {
                 const node = mutation.target
@@ -420,21 +456,7 @@
                                     button.style.overflow = "unset"
 
                                     function onClick(entity) {
-                                        const overlay = document.createElement('div');
-                                        overlay.id = 'BetterAlbumInfo_modal';
-                                        overlay.classList.add("MorePlaylistsFromUserModal", "ifxS_8bgSnwBoCsyow0E", "t7tk8IYH3tGrhDZJpi3Z", "GKgBufCxWa9erUCTU3Fp")
-
-                                        const modal = document.createElement('div');
-                                        modal.classList.add("MorePlaylistsFromUserModal_modal", "ifxS_8bgSnwBoCsyow0E")
-
-                                        const header = document.createElement('div');
-                                        header.innerText = "Еще плейлисты от " + entity.owner.name;
-                                        header.style.marginBottom = "20px";
-                                        header.style.fontSize = "20px";
-                                        header.style.fontWeight = "bold";
-
-                                        const content = document.createElement('div');
-                                        const contentContent = document.createElement('div')
+                                        const content = document.createElement('div')
 
                                         const albumList = document.createElement("ol")
                                         albumList.classList.add("IZnFMW4gXBshJODnvB1P", "SkeletonBlock_container__9IxUi")
@@ -500,23 +522,7 @@
                                             albumList.appendChild(container)
                                         })
                                         content.appendChild(albumList)
-
-                                        const btn = document.createElement('button');
-                                        btn.classList.add("MorePlaylistsFromUserModal_button")
-                                        btn.innerText = "Закрыть";
-                                    
-                                        btn.onclick = () => overlay.remove();
-
-                                        content.appendChild(contentContent)
-                                        content.appendChild(btn);
-                                        modal.appendChild(header);
-                                        modal.appendChild(content);
-                                        overlay.appendChild(modal);
-                                        document.body.appendChild(overlay);
-
-                                        overlay.onclick = (e) => {
-                                            if (e.target === overlay) overlay.remove();
-                                        };
+                                        showModal(content, "Еще плейлисты от " + entity.owner.name)
                                     }
                                     button.addEventListener("click", (_, e = entity) => onClick(e))
                                     const span = document.createElement('span')
@@ -628,7 +634,7 @@
         if (likes && likes != 0 && getSetting("likes")) {
             const button = node.querySelector('.PageHeaderArtist_controls__U_6g7 [data-test-id="LIKE_BUTTON"]:not(:has(span._3_Mxw7Si7j2g4kWjlpR))')
             if (button) {
-                button.style = "display: flex; align-items: center; padding-inline-end: var(--ym-spacer-size-xl); padding-inline-start: var(--ym-spacer-size-xl);" // приходиться использовать стили вместо классов т.к ям слишком часто обнуляет кастомные классы
+                button.style = "display: flex; align-items: center; padding-inline-end: var(--ym-spacer-size-xl); padding-inline-start: var(--ym-spacer-size-xl);"
                 const span = button.querySelector("span.JjlbHZ4FaP9EAcR_1DxF")
                 const liked = button.ariaPressed === "true"
 
