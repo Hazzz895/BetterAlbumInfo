@@ -741,7 +741,7 @@
                             aka.textContent = "AKA"
                             aka.style.backgroundColor = "var(--ym-controls-color-secondary-outline-enabled_stroke)"
                             aka.style.borderRadius = "10px"
-                            aka.style.paddingInline = "3px"
+                            aka.style.paddingInline = "5px"
                             aka.style.marginRight = "5px"
                             div.appendChild(aka)
                             const span = document.createElement("span")
