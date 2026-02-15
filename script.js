@@ -680,7 +680,7 @@
             if (artistMetaContainer) {
                 const metaCotainer = artistMetaContainer.closest('.PageHeaderBase_meta__bMvfR')
                 if (metaCotainer) {
-                    metaCotainer.classList.add(".artistHeaderGap")
+                    metaCotainer.classList.add("artistHeaderGap")
                     const description = artist?.description?.text || entity.description
                     let descriptionSpanNode = metaCotainer.querySelector('.PageHeaderPlaylistMeta_description__edoVx')
                     if (description && getSetting("description") && !descriptionSpanNode) {
