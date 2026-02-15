@@ -729,7 +729,7 @@
                         if (artist.initDate && getSetting("date")) {
                             const date = new Date(artist.initDate)
                             const today = new Date()
-                            const isBirthdayToday = date.getDay() == date.getDay() &&
+                            const isBirthdayToday = date.getDay() === today.getDay() &&
                                     date.getMonth() === today.getMonth();
 
                             addInfo("Дата рождения: " + getLocalizatedDate(date) + (isBirthdayToday ? "🎂" : ""), "date")
