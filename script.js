@@ -39,8 +39,8 @@
         }
     }
 
-    function getSetting(name, withEntityType = true) {
-        if (!settings) return true;
+    function getSetting(name, withEntityType = true, defaultValue = true) {
+        if (!settings) return defaultValue;
 
         const setting = (withEntityType ? lastEntity.type + "_" : "") + name
         return settings[setting].value
@@ -120,7 +120,7 @@
     hookMethod(PLAYLIST_GETTER, "getPlaylist", afterGotEntity)
     hookMethod(ARTIST_GETTER, "getInfo", afterGotArtistInfo)
     hookMethod(ARTIST_GETTER, "getBriefInfo", afterGotBriefArtistInfo)
-
+    
     let lastEntity = null
 
     function afterGotArtistInfo(t, method, result, ...args) {
@@ -338,26 +338,29 @@
     const observer = new MutationObserver((mutationsList) => {
             for (const mutation of mutationsList) {
                 const node = mutation.target
-                if (node instanceof HTMLElement && getSetting('playlist_index', false)) {
-                    const trackNodes = node.querySelectorAll?.('div[data-index] > .PlaylistPageDnDItemWrapper_inner__UXQZf > div[data-test-id="TRACK_PLAYLIST"], div[data-index] > div[data-test-id="TRACK_PLAYLIST"]')
-                    trackNodes.forEach(node => {
-                        var positionNode = node.querySelector('.PlayButtonWithPosition_position__wk3OT')
-                        const parent = node.closest('div[data-index]')
-                        const index = parent.getAttribute("data-index")
-                        const position = parseInt(index) + 1
-                        if (isNaN(position)) return;
-                        if (!positionNode) {
-                            positionNode = document.createElement('div')
-                            positionNode.classList.add("_MWOVuZRvUQdXKTMcOPx", "Z_WIr2W8JU4MPQek3hgR", "ZYV27jeWd30QDXu4GhaH", "PlayButtonWithPosition_position__wk3OT", "PositionIndex")
-                            node.insertBefore(positionNode, node.firstChild)
-                            const dragAndDrop = node.querySelector('.DragAndDropIcon_root__OstQU')
-                            if (dragAndDrop) {
-                                dragAndDrop.classList.add("DragAndDrop_positionIndex")
-                                positionNode.classList.add("PositionIndex_dragAndDrop")
+                if (node instanceof HTMLElement) {
+                    if (getSetting('playlist_index', false)) {
+                        const trackNodes = node.querySelectorAll?.('div[data-index] > .PlaylistPageDnDItemWrapper_inner__UXQZf > div[data-test-id="TRACK_PLAYLIST"], div[data-index] > div[data-test-id="TRACK_PLAYLIST"]')
+                        trackNodes.forEach(node => {
+                            var positionNode = node.querySelector('.PlayButtonWithPosition_position__wk3OT')
+                            const parent = node.closest('div[data-index]')
+                            const index = parent.getAttribute("data-index")
+                            const position = parseInt(index) + 1
+                            if (!isNaN(position)) {
+                                if (!positionNode) {
+                                    positionNode = document.createElement('div')
+                                    positionNode.classList.add("_MWOVuZRvUQdXKTMcOPx", "Z_WIr2W8JU4MPQek3hgR", "ZYV27jeWd30QDXu4GhaH", "PlayButtonWithPosition_position__wk3OT", "PositionIndex")
+                                    node.insertBefore(positionNode, node.firstChild)
+                                    const dragAndDrop = node.querySelector('.DragAndDropIcon_root__OstQU')
+                                    if (dragAndDrop) {
+                                        dragAndDrop.classList.add("DragAndDrop_positionIndex")
+                                        positionNode.classList.add("PositionIndex_dragAndDrop")
+                                    }
+                                }
+                                positionNode.textContent = position.toLocaleString()
                             }
-                        }
-                        positionNode.textContent = position.toLocaleString()
-                    })
+                        })
+                    }
                 }
 
                 if (
