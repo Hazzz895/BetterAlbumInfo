@@ -71,7 +71,7 @@
     align-items: center;
 }
 
-.betterInfoSpan {
+.betterInfoSpan, [data-test-id="PLAYLIST_HEADER_UPDATED_TEXT"] {
     flex-wrap: wrap;
     display: flex;
 }
