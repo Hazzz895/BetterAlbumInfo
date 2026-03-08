@@ -73,6 +73,7 @@
 
 .betterInfoSpan {
     flex-wrap: wrap;
+    display: flex;
 }
 
 .artistHeaderGap {
