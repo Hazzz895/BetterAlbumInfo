@@ -111,9 +111,50 @@
         }
     }
 
-    const ALBUM_GETTER = 93650;
-    const PLAYLIST_GETTER = 63554;
-    const ARTIST_GETTER = 2512;
+    function getVersionIndex(map, version) {
+        const version_split = version.split('.').map(Number);
+        let lastMatch = 0;
+
+        for (let m = 0; m < map.length; m++) {
+            const ver_split = map[m].split('.').map(Number);
+            let matches = true;
+
+            for (let v = 0; v < Math.max(ver_split.length, version_split.length); v++) {
+                const vi = version_split[v] || 0;
+                const i = ver_split[v] || 0;
+
+                if (vi > i) { 
+                    matches = true; 
+                    break; 
+                }
+                if (vi < i) { 
+                    matches = false; 
+                    break; 
+                }
+            }
+
+            if (matches) {
+                lastMatch = m;
+            } else {
+                break;
+            }
+        }
+        return lastMatch;
+    }
+
+    const versions_map = 
+        ["5.75.2", "5.90.0"]
+    const chunks_map = [
+        [93650, 79817], // album
+        [63554, 12774], // playlist
+        [2512, 36788]   // artist
+    ]
+
+    const version_index = getVersionIndex(versions_map, window.VERSION);
+
+    const ALBUM_GETTER = chunks_map[0][version_index];
+    const PLAYLIST_GETTER = chunks_map[1][version_index];
+    const ARTIST_GETTER = chunks_map[2][version_index];
 
     hookMethod(ALBUM_GETTER, "getAlbumWithTracksIds", afterGotEntity)
     hookMethod(ALBUM_GETTER, "getAlbumWithRichTracks", afterGotEntity)

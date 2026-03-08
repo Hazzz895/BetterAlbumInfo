@@ -10,7 +10,7 @@
         "Script",
         "Utility"
     ],
-    "supportedVersions": ["5.75.2"],
+    "supportedVersions": ["5.75.2", "5.90.0"],
     "allowedUrls": [
         "https://iimuzyka.top"
     ]
