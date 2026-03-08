@@ -71,8 +71,12 @@
     align-items: center;
 }
 
-.betterInfoSpan, [data-test-id="PLAYLIST_HEADER_UPDATED_TEXT"] {
-    flex-wrap: wrap;
+.betterInfoSpan {
+    flex-wrap: wrap !important;
+    display: flex !important;
+}
+
+[data-test-id="PLAYLIST_HEADER_UPDATED_TEXT"] {
     display: flex;
 }
 

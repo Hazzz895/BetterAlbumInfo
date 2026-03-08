@@ -482,6 +482,7 @@
                                     '[data-test-id="PLAYLIST_HEADER_UPDATED_TEXT"]')
 
                             if (subtitleNode) {
+                                subtitleNode.classList.add("betterInfoSpan")
                                 subtitleNode.innerHTML = `<div>${subtitleNode.innerHTML}</div>`
                                 subtitleNode = subtitleNode.firstChild
 
