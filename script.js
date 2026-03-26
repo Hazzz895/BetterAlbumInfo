@@ -170,16 +170,11 @@
             result = cached
         }
 
-        afterAfterGotArtistAnyInfo(t, method, result, ...args)
+        afterGotEntity(t, method, result, ...args)
 
         if (!cached && getSetting("brief") && (getSetting("albums") || getSetting("date") || getSetting("end") || getSetting("genres") || getSetting("country") || getSetting("tracks") || getSetting("aka"))) {
             t.getBriefInfo(...args)
         }
-    }
-
-    function afterAfterGotArtistAnyInfo(t, method, result, ...args) {
-        afterGotEntity(t, method, result, ...args)
-        handleArtist(result, document)
     }
 
     function afterGotEntity(t, method, result, ...args) {
@@ -191,6 +186,7 @@
             "entity": result
         }
         console.debug(lastEntity)
+        handleUpdate(document.body)
     }
 
     const genres = {
@@ -332,7 +328,7 @@
     function afterGotBriefArtistInfo(t, method, result, ...args) {
         _cachedBriefArtistInfos[result.artist.id.toString()] = result
         if (lastEntity?.entity?.artist?.id == result?.artist?.id) {
-            afterAfterGotArtistAnyInfo(t, method, result, ...args)
+            afterGotEntity(t, method, result, ...args)
         }
         else {
             console.debug(result)
@@ -376,11 +372,32 @@
         }
     }
 
-    async function handleChildListMutation(node) {
+    async function handleUpdate(node = document.body) {
         if (!(node instanceof HTMLElement)) return;
 
-        const type = lastEntity.type
-        const entity = lastEntity.entity
+        const type = lastEntity?.type
+        const entity = lastEntity?.entity
+
+        if (!type || !entity) return;
+
+        function getInfoNode(id, create = undefined, add = undefined) {
+            const tag = entity.id ?? entity.playlistUuid ?? entity.artist?.id;
+            let n = node.querySelector(`[better-info-id="${id}"]` + (tag ? `[better-info-tag="${tag}"]` : ""))
+            if (!n) {
+                if (create) {
+                    n = create()
+                }
+                if (!n) return null; 
+                n.setAttribute("better-info-id", id)
+                if (tag) {
+                    n.setAttribute("better-info-tag", tag)
+                }
+                if (add) {
+                    add(n)
+                }
+            }
+            return n
+        }
 
         if (type === "album") {
             await addAiBadge(node, entity.artists.map(x => x.id))
@@ -391,7 +408,7 @@
             ) {
                 let genreNode;
                 if (entity.genre && getSetting("genre")) {
-                    genreNode = releaseDateNode.cloneNode(true)
+                    genreNode = getInfoNode("genre", () => releaseDateNode.cloneNode(true))
                     genreNode.textContent = getLocalizatedGenre(entity.genre)
                 }
 
@@ -413,12 +430,12 @@
                         }
                 }
 
-                if (genreNode) {
+                if (genreNode && !genreNode.parentElement) {
                     releaseDateNode.parentElement.append(genreNode)
                 }
 
                 if (entity.trackCount && getSetting("trackCount")) {
-                    const countNode = releaseDateNode.cloneNode(true)
+                    const countNode = getInfoNode("trackCount", () => releaseDateNode.cloneNode(true), node => releaseDateNode.parentElement.append(node))
                     var str = getPluralTrackString(entity.trackCount)
                     var duration = 0;
                     entity.volumes.forEach(volume => volume.forEach(track => duration += track != null && track.durationMs != null ? track.durationMs : 0))
@@ -434,7 +451,6 @@
                         str = str + " (" + durationStr + ")"
                     }
                     countNode.textContent = str
-                    releaseDateNode.parentElement.append(countNode)
                 }
             }
         }
@@ -446,8 +462,9 @@
                     const parent = title.parentElement
                     parent.classList.add("titleContainer")
 
-                    const container = document.createElement("div")
-                    container.innerHTML = 
+                    getInfoNode("private", () => {
+                        const ctr = document.createElement("span")
+                        ctr.innerHTML = 
                         `<svg 
                         class="CommonControlsBar_ugcIcon__OV0Cl l3tE1hAMmBj2aoPPwU08" 
                         focusable="false" 
@@ -457,7 +474,8 @@
                             <use xlink:href="/icons/sprite.svg#eye_crossed_xxs">
                             </use>
                         </svg>`
-                    parent.appendChild(container.firstChild)
+                        return ctr.firstChild
+                    }, node => parent.appendChild(node))
                 }
             }
 
@@ -465,11 +483,16 @@
                     '[data-test-id="PLAYLIST_HEADER_UPDATED_TEXT"]')
 
             if (subtitleNode) {
-                subtitleNode.classList.add("betterInfoSpan")
-                subtitleNode.innerHTML = `<div>${subtitleNode.innerHTML}</div>`
-                subtitleNode = subtitleNode.firstChild
+                let firstly = false;
+                subtitleNode = getInfoNode("subtitle", () => {
+                    subtitleNode.innerHTML = `<div>${subtitleNode.innerHTML}</div>`
+                    subtitleNode.classList.add("betterInfoSpan")
+                    firstly = true;
+                    console.log("\n\n\n\n\nPENIS")
+                    return subtitleNode
+                }).firstChild;
 
-                if (entity.owner && entity.lastOwnerPlaylists && entity.lastOwnerPlaylists.length > 0 && getSetting("moreOwner")) {
+                if (firstly && entity.owner && entity.lastOwnerPlaylists && entity.lastOwnerPlaylists.length > 0 && getSetting("moreOwner")) {
                     subtitleNode.textContent = subtitleNode.textContent.replace(RegExp(`^((${entity.owner.name})|(${entity.owner.login}))`), " ")
                     subtitleNode.innerHTML = "&nbsp;" + subtitleNode.innerHTML
 
@@ -557,17 +580,20 @@
                     span.classList.add("_MWOVuZRvUQdXKTMcOPx", "g3qWNP6xl__7qxNmtrvd", "_3_Mxw7Si7j2g4kWjlpR")
                     span.textContent = entity.owner.name
                     button.appendChild(span)
-                    subtitleNode.parentElement.insertBefore(button, subtitleNode.parentElement.firstChild)
+                    subtitleNode.parentElement.insertBefore(button, subtitleNode)
                 }
 
-                if (entity.created && getSetting("created")) {
+                if (firstly && entity.created && getSetting("created")) {
                     subtitleNode.textContent += " / создано " + getLocalizatedDate(entity.created)
                 }
 
                 if (entity.durationMs && entity.trackCount && getSetting("trackCount")) {
-                    const durationNode = subtitleNode.cloneNode(true)
-                    durationNode.style = null
-                    durationNode.classList.remove("oyQL2RSmoNbNQf3Vc6YI")
+                    const durationNode = getInfoNode("duration", () => {
+                        const d = subtitleNode.cloneNode(true)
+                        d.style = null
+                        d.classList.remove("oyQL2RSmoNbNQf3Vc6YI")
+                        return d;
+                    }, node => subtitleNode.parentElement.append(node));
 
                     const formatter = new Intl.DurationFormat('ru-RU', {style: "long"})
                     const seconds = Math.floor(entity.durationMs / 1000)
@@ -580,12 +606,161 @@
 
                     durationNode.textContent = getPluralTrackString(entity.trackCount) + " (" + durationStr + ")"
                     durationNode.classList.add("PageHeaderAlbumMeta_year_dot__TrSFr")
-                    subtitleNode.parentElement.append(durationNode)
                 }
             }
         }
         else if (type === "artist") {
-            handleArtist(entity, node)
+            const artist = entity.artist
+            await addAiBadge(node, artist.id)
+            const stats = entity.stats || artist.stats
+            if (stats?.lastMonthListenersDelta && stats?.lastMonthListenersDelta != 0 && getSetting("delta")) {
+                const monthListenersNode = node.querySelector?.(
+                        '[data-test-id="ARTIST_LISTENERS_COUNT"]')
+                if (monthListenersNode && !node.querySelector('.DeltaListeners')) {
+                    const delta = entity.stats.lastMonthListenersDelta
+                    const deltaNode = document.createElement('span')
+                    deltaNode.classList.add("g3qWNP6xl__7qxNmtrvd", "_3_Mxw7Si7j2g4kWjlpR", "DeltaListeners")
+                    if (delta > 0) {
+                        deltaNode.textContent = "+"
+                        deltaNode.classList.add("PositiveDeltaListeners")
+                    }
+                    else {
+                        deltaNode.classList.add("NegativeDeltaListeners")
+                    }
+                    deltaNode.textContent += delta.toLocaleString() + " за последние 28 дней"
+                    monthListenersNode.parentElement.appendChild(deltaNode)
+                }
+            }
+
+            const likes = entity.likesCount || entity.artist.likesCount
+            if (likes && likes != 0 && getSetting("likes")) {
+                const button = node.querySelector('.PageHeaderArtist_controls__U_6g7 [data-test-id="LIKE_BUTTON"]:not(:has(span._3_Mxw7Si7j2g4kWjlpR))')
+                if (button) {
+                    button.style = "display: flex; align-items: center; padding-inline-end: var(--ym-spacer-size-xl); padding-inline-start: var(--ym-spacer-size-xl);"
+                    const span = button.querySelector("span.JjlbHZ4FaP9EAcR_1DxF")
+                    const liked = button.ariaPressed === "true"
+
+                    let likesNode;
+                    function updateButton(likes) {
+                        if (likesNode) {
+                            likesNode.remove()
+                        }
+
+                        span.classList.add("elJfazUBui03YWZgHCbW")
+                        button.classList.add("kc5CjvU5hT9KEj0iTt3C")
+
+                        likesNode = document.createElement("span")
+                        likesNode.classList.add("_MWOVuZRvUQdXKTMcOPx", "_oBLf5gprWsKjCw4Ce58", "_3_Mxw7Si7j2g4kWjlpR",)
+                        likesNode.textContent = likes.toLocaleString()
+
+                        button.appendChild(likesNode)
+                    }
+
+                    updateButton(likes)
+
+                    button.addEventListener("click", () => {
+                        setTimeout(() => {
+                                if (button.ariaPressed === "true") {
+                                updateButton(likes + (liked ? 0 : 1))
+                            }
+                            else {
+                                updateButton(likes + (liked ? -1 : 0))
+                            }
+                        }, 0)
+                    })
+                }
+            }
+
+            var fullNames = artist.fullNames == null || artist.fullNames == undefined ? null : artist.fullNames.filter(x => x != artist.name)
+            if (fullNames && fullNames.length == 0) fullNames = null
+
+            if (artist.initDate || artist.countries || artist.endDate || artist.genres || artist.counts || artist.description || entity.description || fullNames) {
+                const artistMetaContainer = node.querySelector?.(".PageHeaderArtist_meta__ZAlx_")
+                if (artistMetaContainer) {
+                    const metaCotainer = artistMetaContainer.closest('.PageHeaderBase_meta__bMvfR')
+                    if (metaCotainer) {
+                        metaCotainer.classList.add("artistHeaderGap")
+                        const description = artist?.description?.text || entity.description
+                        let descriptionSpanNode = getInfoNode("description", () => {
+                                if (description && getSetting("description") && !descriptionSpanNode) {
+                                    var node = document.createElement("span")
+                                    node.classList.add("_MWOVuZRvUQdXKTMcOPx", "g3qWNP6xl__7qxNmtrvd", "_3_Mxw7Si7j2g4kWjlpR", "PageHeaderPlaylistMeta_description__edoVx")
+                                    node.textContent = description
+                                    return node;
+                                }
+                                return null;
+                            }, node => metaCotainer.insertBefore(node, artistMetaContainer));
+
+                        if (artist.initDate || artist.countries || artist.endDate || artist.genres || artist.counts || fullNames) {
+                            let betterInfoSpan = getInfoNode("artistSubtitleCtr", () => {
+                                var n = document.createElement("span")
+                                n.classList.add("betterInfoSpan", "_MWOVuZRvUQdXKTMcOPx", "LezmJlldtbHWqU7l1950", "oyQL2RSmoNbNQf3Vc6YI", "g3qWNP6xl__7qxNmtrvd", "_3_Mxw7Si7j2g4kWjlpR", "PageHeaderPlaylistMeta_updatedText__FSo_0")
+                                return n;
+                            }, node => metaCotainer.insertBefore(node, descriptionSpanNode?.nextSibling || metaCotainer.firstChild))
+
+                            function addInfo(textOrNode, id) {
+                                getInfoNode(id, () => {
+                                    let node = textOrNode;
+                                    if (!(textOrNode instanceof Node)) {
+                                        node = document.createElement("div")
+                                        node.textContent = textOrNode
+                                    }
+
+                                    if (betterInfoSpan.childElementCount > 0) {
+                                        node.classList.add("PageHeaderAlbumMeta_year_dot__TrSFr")
+                                    }
+                                    return node;
+                                }, node => betterInfoSpan.appendChild(node))
+                            }
+
+                            if (artist.counts?.directAlbums && getSetting("albums")) {
+                                addInfo(getPluralAlbumString(artist.counts?.directAlbums), "albums")
+                            }
+
+                            if (artist.counts?.tracks && getSetting("tracks")) {
+                                addInfo(getPluralTrackString(artist.counts?.tracks), "tracks")
+                            }
+
+                            if (artist.initDate && getSetting("date")) {
+                                const date = new Date(artist.initDate)
+                                const today = new Date()
+                                const isBirthdayToday = date.getDay() === today.getDay() &&
+                                        date.getMonth() === today.getMonth();
+
+                                addInfo("Дата рождения: " + getLocalizatedDate(date) + (isBirthdayToday ? "🎂" : ""), "date")
+                            }
+
+                            if (artist.endDate && artist.id != 36791 && getSetting("end")) {
+                                addInfo("Дата кончины: " + getLocalizatedDate(artist.endDate), "end")
+                            }
+
+                            if (fullNames && fullNames.length > 0 && getSetting("aka")) {
+                                const div = document.createElement("div")
+                                div.classList.add("aiGeneratedContainer")
+                                const aka = document.createElement("div")
+                                aka.textContent = "AKA"
+                                aka.style.backgroundColor = "var(--ym-controls-color-secondary-outline-enabled_stroke)"
+                                aka.style.borderRadius = "10px"
+                                aka.style.paddingInline = "5px"
+                                aka.style.marginRight = "5px"
+                                div.appendChild(aka)
+                                const span = document.createElement("span")
+                                span.textContent = fullNames.map(x => getLocalizatedGenre(x)).join(', ')
+                                div.appendChild(span)
+                                addInfo(div, "aka")
+                            }
+
+                            if (artist.genres && artist.genres.length > 0 && getSetting("genres")) {
+                                addInfo(artist.genres.map(x => getLocalizatedGenre(x)).join(', '), "genres")
+                            }
+
+                            if (artist.countries && artist.countries.length > 0 && getSetting("country")) {
+                                addInfo(artist.countries.join(", ", "country"))
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -620,7 +795,7 @@
                 if (
                     mutation.type === "childList" && lastEntity
                 ) {
-                    mutation.addedNodes.forEach(handleChildListMutation);
+                    mutation.addedNodes.forEach(handleUpdate);
             }
             }
         });
@@ -667,168 +842,7 @@
         cntr.appendChild(span)
         container.appendChild(cntr)
     }
-    
-    async function handleArtist(entity, node) {
-        const artist = entity.artist
-        await addAiBadge(node, artist.id)
-        const stats = entity.stats || artist.stats
-        if (stats?.lastMonthListenersDelta && stats?.lastMonthListenersDelta != 0 && getSetting("delta")) {
-            const monthListenersNode = node.querySelector?.(
-                    '[data-test-id="ARTIST_LISTENERS_COUNT"]')
-            if (monthListenersNode && !node.querySelector('.DeltaListeners')) {
-                const delta = entity.stats.lastMonthListenersDelta
-                const deltaNode = document.createElement('span')
-                deltaNode.classList.add("g3qWNP6xl__7qxNmtrvd", "_3_Mxw7Si7j2g4kWjlpR", "DeltaListeners")
-                if (delta > 0) {
-                    deltaNode.textContent = "+"
-                    deltaNode.classList.add("PositiveDeltaListeners")
-                }
-                else {
-                    deltaNode.classList.add("NegativeDeltaListeners")
-                }
-                deltaNode.textContent += delta.toLocaleString() + " за последние 28 дней"
-                monthListenersNode.parentElement.appendChild(deltaNode)
-            }
-        }
 
-        const likes = entity.likesCount || entity.artist.likesCount
-        if (likes && likes != 0 && getSetting("likes")) {
-            const button = node.querySelector('.PageHeaderArtist_controls__U_6g7 [data-test-id="LIKE_BUTTON"]:not(:has(span._3_Mxw7Si7j2g4kWjlpR))')
-            if (button) {
-                button.style = "display: flex; align-items: center; padding-inline-end: var(--ym-spacer-size-xl); padding-inline-start: var(--ym-spacer-size-xl);"
-                const span = button.querySelector("span.JjlbHZ4FaP9EAcR_1DxF")
-                const liked = button.ariaPressed === "true"
-
-                let likesNode;
-                function updateButton(likes) {
-                    if (likesNode) {
-                        likesNode.remove()
-                    }
-
-                    span.classList.add("elJfazUBui03YWZgHCbW")
-                    button.classList.add("kc5CjvU5hT9KEj0iTt3C")
-
-                    likesNode = document.createElement("span")
-                    likesNode.classList.add("_MWOVuZRvUQdXKTMcOPx", "_oBLf5gprWsKjCw4Ce58", "_3_Mxw7Si7j2g4kWjlpR",)
-                    likesNode.textContent = likes.toLocaleString()
-
-                    button.appendChild(likesNode)
-                }
-
-                updateButton(likes)
-
-                button.addEventListener("click", () => {
-                    setTimeout(() => {
-                            if (button.ariaPressed === "true") {
-                            updateButton(likes + (liked ? 0 : 1))
-                        }
-                        else {
-                            updateButton(likes + (liked ? -1 : 0))
-                        }
-                    }, 0)
-                })
-            }
-        }
-
-        var fullNames = artist.fullNames == null || artist.fullNames == undefined ? null : artist.fullNames.filter(x => x != artist.name)
-        if (fullNames && fullNames.length == 0) fullNames = null
-
-        if (artist.initDate || artist.countries || artist.endDate || artist.genres || artist.counts || artist.description || entity.description || fullNames) {
-            const artistMetaContainer = node.querySelector?.(".PageHeaderArtist_meta__ZAlx_")
-            if (artistMetaContainer) {
-                const metaCotainer = artistMetaContainer.closest('.PageHeaderBase_meta__bMvfR')
-                if (metaCotainer) {
-                    metaCotainer.classList.add("artistHeaderGap")
-                    const description = artist?.description?.text || entity.description
-                    let descriptionSpanNode = metaCotainer.querySelector('.PageHeaderPlaylistMeta_description__edoVx')
-                    if (description && getSetting("description") && !descriptionSpanNode) {
-                        descriptionSpanNode = document.createElement("span")
-                        descriptionSpanNode.textContent = description
-                        descriptionSpanNode.classList.add("_MWOVuZRvUQdXKTMcOPx", "g3qWNP6xl__7qxNmtrvd", "_3_Mxw7Si7j2g4kWjlpR", "PageHeaderPlaylistMeta_description__edoVx")
-                        metaCotainer.insertBefore(descriptionSpanNode, artistMetaContainer)
-                    }
-
-                    if (artist.initDate || artist.countries || artist.endDate || artist.genres || artist.counts || fullNames) {
-                        let betterInfoSpan = metaCotainer.querySelector('.betterInfoSpan')
-                        if (!betterInfoSpan) {
-                            betterInfoSpan = document.createElement("span")
-                            betterInfoSpan.classList.add("betterInfoSpan", "_MWOVuZRvUQdXKTMcOPx", "LezmJlldtbHWqU7l1950", "oyQL2RSmoNbNQf3Vc6YI", "g3qWNP6xl__7qxNmtrvd", "_3_Mxw7Si7j2g4kWjlpR", "PageHeaderPlaylistMeta_updatedText__FSo_0")
-                            metaCotainer.insertBefore(betterInfoSpan, descriptionSpanNode?.nextSibling || metaCotainer.firstChild)
-                        } 
-
-                        function addInfo(textOrNode, id) {
-                            id = "BetterInfoAlbum_betterInfoSpan#" + id
-                            const existingNode = document.getElementById(id)
-
-                            let node = textOrNode;
-                            if (!(textOrNode instanceof Node)) {
-                                node = document.createElement("div")
-                                node.textContent = textOrNode
-                            }
-
-                            if ((!existingNode && betterInfoSpan.childElementCount > 0) || (existingNode && Array.from(existingNode.parentElement.children).indexOf(existingNode) > 0)) {
-                                node.classList.add("PageHeaderAlbumMeta_year_dot__TrSFr")
-                            }
-
-                            node.id = id
-
-                            if (!existingNode) {
-                                betterInfoSpan.appendChild(node)
-                            }
-                            else {
-                                existingNode.replaceWith(node)
-                            }
-                        }
-
-                        if (artist.counts?.directAlbums && getSetting("albums")) {
-                            addInfo(getPluralAlbumString(artist.counts?.directAlbums), "albums")
-                        }
-
-                        if (artist.counts?.tracks && getSetting("tracks")) {
-                            addInfo(getPluralTrackString(artist.counts?.tracks), "tracks")
-                        }
-
-                        if (artist.initDate && getSetting("date")) {
-                            const date = new Date(artist.initDate)
-                            const today = new Date()
-                            const isBirthdayToday = date.getDay() === today.getDay() &&
-                                    date.getMonth() === today.getMonth();
-
-                            addInfo("Дата рождения: " + getLocalizatedDate(date) + (isBirthdayToday ? "🎂" : ""), "date")
-                        }
-
-                        if (artist.endDate && artist.id != 36791 && getSetting("end")) {
-                            addInfo("Дата кончины: " + getLocalizatedDate(artist.endDate), "end")
-                        }
-
-                        if (fullNames && fullNames.length > 0 && getSetting("aka")) {
-                            const div = document.createElement("div")
-                            div.classList.add("aiGeneratedContainer")
-                            const aka = document.createElement("div")
-                            aka.textContent = "AKA"
-                            aka.style.backgroundColor = "var(--ym-controls-color-secondary-outline-enabled_stroke)"
-                            aka.style.borderRadius = "10px"
-                            aka.style.paddingInline = "5px"
-                            aka.style.marginRight = "5px"
-                            div.appendChild(aka)
-                            const span = document.createElement("span")
-                            span.textContent = fullNames.map(x => getLocalizatedGenre(x)).join(', ')
-                            div.appendChild(span)
-                            addInfo(div, "aka")
-                        }
-
-                        if (artist.genres && artist.genres.length > 0 && getSetting("genres")) {
-                            addInfo(artist.genres.map(x => getLocalizatedGenre(x)).join(', '), "genres")
-                        }
-
-                        if (artist.countries && artist.countries.length > 0 && getSetting("country")) {
-                            addInfo(artist.countries.join(", ", "country"))
-                        }
-                    }
-                }
-            }
-        }
-    }
     
     observer.observe(document.body, {
         childList: true,
