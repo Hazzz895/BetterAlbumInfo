@@ -86,7 +86,7 @@
                 {
                     "id": "album_trackCount",
                     "name": "Количество треков",
-                    "description": "Показывать количество треков в его подзаголовке",
+                    "description": "Показывать количество треков альбома в его подзаголовке",
                     "type": "button",
                     "bool": true,
                     "defaultParameter": true
