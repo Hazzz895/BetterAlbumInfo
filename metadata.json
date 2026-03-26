@@ -1,11 +1,12 @@
 {
-    "name": "BetterAlbumInfo",
+    "name": "BetterInfo",
     "author": "Hazzz895",
-    "description": "Добавляет больше информации о альбомах и плейлистах",
-    "version": "1.10.1",
+    "description": "Добавляет больше информации о исполнителях, треках и альбомах.",
+    "version": "2.0.0",
     "script": "script.js",
     "css": "style.css",
     "type": "script",
+    "image": "image.png",
     "tags": [
         "Script",
         "Utility"

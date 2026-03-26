@@ -2,7 +2,7 @@
     let settings = getSettings();
     function getSettings() {
         try {
-            fetch(`http://localhost:2007/get_handle?name=BetterAlbumInfo`).then(response => {
+            fetch(`http://localhost:2007/get_handle?name=BetterInfo`).then(response => {
                 if (!response.ok) throw new Error(`Ошибка сети: ${response.status}`);
     
                 response.json().then(d => {
