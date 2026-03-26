@@ -376,6 +376,219 @@
         }
     }
 
+    async function handleChildListMutation(node) {
+        if (!(node instanceof HTMLElement)) return;
+
+        const type = lastEntity.type
+        const entity = lastEntity.entity
+
+        if (type === "album") {
+            await addAiBadge(node, entity.artists.map(x => x.id))
+            const releaseDateNode = node.querySelector?.(
+                '[data-test-id="ALBUM_RELEASE_DATE"]')
+            if (
+                releaseDateNode
+            ) {
+                let genreNode;
+                if (entity.genre && getSetting("genre")) {
+                    genreNode = releaseDateNode.cloneNode(true)
+                    genreNode.textContent = getLocalizatedGenre(entity.genre)
+                }
+
+                if (entity.releaseDate && getSetting("date")) {
+                    const date = new Date(entity.releaseDate)
+                    const now = new Date(Date.now())
+                    releaseDateNode.textContent = getLocalizatedDate(date)
+                    if ((now - date)/1000/60/60/24/30 < (entity.recent ? 3 : 1)) {
+                        const container = document.createElement("div")
+                        container.innerHTML = 
+                            `<svg 
+                                class="Chart_progress__sGj4s Chart_progress_crown__o__Zm l3tE1hAMmBj2aoPPwU08 RecentAlbumIcon" 
+                                focusable="false" 
+                                aria-hidden="false">
+                                    <use xlink:href="/icons/sprite.svg#chartNew_xxs">
+                                    </use>
+                            </svg>`
+                            releaseDateNode.appendChild(container.firstChild)
+                        }
+                }
+
+                if (genreNode) {
+                    releaseDateNode.parentElement.append(genreNode)
+                }
+
+                if (entity.trackCount && getSetting("trackCount")) {
+                    const countNode = releaseDateNode.cloneNode(true)
+                    var str = getPluralTrackString(entity.trackCount)
+                    var duration = 0;
+                    entity.volumes.forEach(volume => volume.forEach(track => duration += track != null && track.durationMs != null ? track.durationMs : 0))
+                    if (duration > 0) {
+                        const formatter = new Intl.DurationFormat('ru-RU', {style: "long"})
+                        const seconds = Math.floor(entity.durationMs / 1000)
+                        const duration = {
+                            hours: Math.floor(seconds / 3600),
+                            minutes: Math.floor((seconds % 3600) / 60),
+                            seconds: seconds % 60
+                            };
+                        const durationStr = formatter.format(duration)
+                        str = str + " (" + durationStr + ")"
+                    }
+                    countNode.textContent = str
+                    releaseDateNode.parentElement.append(countNode)
+                }
+            }
+        }
+        else if (type === "playlist") {
+            if (entity.visibility == "private" && getSetting("private")) {    
+                let title = node.querySelector?.(
+                        '[data-test-id="ENTITY_TITLE"]')
+                if (title) {
+                    const parent = title.parentElement
+                    parent.classList.add("titleContainer")
+
+                    const container = document.createElement("div")
+                    container.innerHTML = 
+                        `<svg 
+                        class="CommonControlsBar_ugcIcon__OV0Cl l3tE1hAMmBj2aoPPwU08" 
+                        focusable="false" 
+                        aria-label="Этот плейлист можете слушать только вы" 
+                        data-test-id="UGC_PLAYLIST_ICON" 
+                        aria-hidden="false">
+                            <use xlink:href="/icons/sprite.svg#eye_crossed_xxs">
+                            </use>
+                        </svg>`
+                    parent.appendChild(container.firstChild)
+                }
+            }
+
+            let subtitleNode = node.querySelector?.(
+                    '[data-test-id="PLAYLIST_HEADER_UPDATED_TEXT"]')
+
+            if (subtitleNode) {
+                subtitleNode.classList.add("betterInfoSpan")
+                subtitleNode.innerHTML = `<div>${subtitleNode.innerHTML}</div>`
+                subtitleNode = subtitleNode.firstChild
+
+                if (entity.owner && entity.lastOwnerPlaylists && entity.lastOwnerPlaylists.length > 0 && getSetting("moreOwner")) {
+                    subtitleNode.textContent = subtitleNode.textContent.replace(RegExp(`^((${entity.owner.name})|(${entity.owner.login}))`), " ")
+                    subtitleNode.innerHTML = "&nbsp;" + subtitleNode.innerHTML
+
+                    const container = document.createElement("div")
+                    container.innerHTML = `<button 
+                        class=
+                        type="button" >
+                        </button>`
+                    const button = document.createElement("button")
+                    button.classList.add("cpeagBA1_PblpJn8Xgtv", "qlPp6CSQQEMVZPqtqLiQ", "dgV08FKVLZKFsucuiryn", "IlG7b1K0AD7E7AMx6F5p", "IgYbZLnYjW0nMahgpkus", "qU2apWBO1yyEK0lZ3lPO")
+                    button.type = "button"
+                    button.style.overflow = "unset"
+
+                    function onClick(entity) {
+                        const content = document.createElement('div')
+
+                        const albumList = document.createElement("ol")
+                        albumList.classList.add("IZnFMW4gXBshJODnvB1P", "SkeletonBlock_container__9IxUi")
+
+                        entity.lastOwnerPlaylists.forEach(playlist => {
+                            const container = document.createElement('li')
+                            container.classList.add("VJ9IexhAEuYSCyGiMfN4")
+                            container.innerHTML = `<div
+                                                    class="laBJlJAaqEVS0i_4Ot3l PlaylistCard_root__i3pR4"
+                                                    >
+                                                    <div>
+                                                        <a
+                                                        href="/playlists?playlistUuid=${playlist.playlistUuid}"
+                                                        >
+                                                            <div
+                                                            class="qaIScXjx1qyXuaIHXQIo _7gw1qGE6BeUAdSMbhRx ZcpulvHgF_wsgzB8Hye9 gtfPudKIIbfkwmuOBzwI PlaylistCard_cover__tpK5L"
+                                                            >
+                                                                <div class="PlaylistCard_coverBlock__1slsN">
+                                                                    <img
+                                                                    class="qQ7GQU14EkggPBC6jdeS fosYvyLDok3Kjj9OWmxG PlaylistCard_image__Li6oy"
+                                                                    alt="Плейлист ${playlist.title}"
+                                                                    loading="eager"
+                                                                    aria-hidden="true"
+                                                                    data-test-id="ENTITY_COVER_IMAGE"
+                                                                    srcset="
+                                                                        https://${playlist.ogImage.replace("%%", "200x200")},
+                                                                        https://${playlist.ogImage.replace("%%", "400x400")} 2x
+                                                                    "
+                                                                    src="https://${playlist.ogImage.replace("%%", "200x200")}"
+                                                                    />
+                                                                </div>
+                                                            </div>
+                                                        </a>
+                                                    </div>
+                                                    <div class="IO4kvpDGNI2J0CHwcKSf">
+                                                        <div class="l8SktNpJd30JWp1owp_b Mb33JzAWx9EjbQAeScFt" style="min-height: var(--ym-font-line-height-label-m)">
+                                                        <div class="LmhA6nlLyzxwYIX31gYa">
+                                                            <div
+                                                            class="_MWOVuZRvUQdXKTMcOPx LezmJlldtbHWqU7l1950 jMyoZB5J9iZbzJmWOrF0 mxSPe5xpZnie9gpIqacd _3_Mxw7Si7j2g4kWjlpR FAmeEGy52GX1k0xZuPDn"
+                                                            style="-webkit-line-clamp: 2; margin-bottom: 5px"
+                                                            >
+                                                                <div
+                                                                    class="_MWOVuZRvUQdXKTMcOPx LezmJlldtbHWqU7l1950 jMyoZB5J9iZbzJmWOrF0 mxSPe5xpZnie9gpIqacd _3_Mxw7Si7j2g4kWjlpR"
+                                                                    data-test-id="PLAYLIST_TITLE"
+                                                                    style="-webkit-line-clamp: 2"
+                                                                >
+                                                                    <a
+                                                                    target="_self"
+                                                                    rel=""
+                                                                    class="buOTZq_TKQOVyjMLrXvB PlaylistCard_titleLink__H8qEc"
+                                                                    href="/playlists?playlistUuid=${playlist.playlistUuid}"
+                                                                    >${playlist.title}</a
+                                                                    >
+                                                                </div>
+                                                                <div class="IgYbZLnYjW0nMahgpkus">
+                                                                ${getPluralTrackString(playlist.trackCount)}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        </div>
+                                                    </div>
+                                                    </div>`
+                            albumList.appendChild(container)
+                        })
+                        content.appendChild(albumList)
+                        showModal(content, "Еще плейлисты от " + entity.owner.name)
+                    }
+                    button.addEventListener("click", (_, e = entity) => onClick(e))
+                    const span = document.createElement('span')
+                    span.classList.add("_MWOVuZRvUQdXKTMcOPx", "g3qWNP6xl__7qxNmtrvd", "_3_Mxw7Si7j2g4kWjlpR")
+                    span.textContent = entity.owner.name
+                    button.appendChild(span)
+                    subtitleNode.parentElement.insertBefore(button, subtitleNode.parentElement.firstChild)
+                }
+
+                if (entity.created && getSetting("created")) {
+                    subtitleNode.textContent += " / создано " + getLocalizatedDate(entity.created)
+                }
+
+                if (entity.durationMs && entity.trackCount && getSetting("trackCount")) {
+                    const durationNode = subtitleNode.cloneNode(true)
+                    durationNode.style = null
+                    durationNode.classList.remove("oyQL2RSmoNbNQf3Vc6YI")
+
+                    const formatter = new Intl.DurationFormat('ru-RU', {style: "long"})
+                    const seconds = Math.floor(entity.durationMs / 1000)
+                    const duration = {
+                        hours: Math.floor(seconds / 3600),
+                        minutes: Math.floor((seconds % 3600) / 60),
+                        seconds: seconds % 60
+                        };
+                    const durationStr = formatter.format(duration)
+
+                    durationNode.textContent = getPluralTrackString(entity.trackCount) + " (" + durationStr + ")"
+                    durationNode.classList.add("PageHeaderAlbumMeta_year_dot__TrSFr")
+                    subtitleNode.parentElement.append(durationNode)
+                }
+            }
+        }
+        else if (type === "artist") {
+            handleArtist(entity, node)
+        }
+    }
+
     const observer = new MutationObserver((mutationsList) => {
             for (const mutation of mutationsList) {
                 const node = mutation.target
@@ -407,204 +620,7 @@
                 if (
                     mutation.type === "childList" && lastEntity
                 ) {
-                    mutation.addedNodes.forEach(async (node) => {
-                        if (!(node instanceof HTMLElement)) return;
-
-                        const type = lastEntity.type
-                        const entity = lastEntity.entity
-
-                        if (type === "album") {
-                            await addAiBadge(node, entity.artists.map(x => x.id))
-                            const releaseDateNode = node.querySelector?.(
-                                '[data-test-id="ALBUM_RELEASE_DATE"]')
-                            if (
-                                releaseDateNode
-                            ) {
-                                let genreNode;
-                                if (entity.genre && getSetting("genre")) {
-                                    genreNode = releaseDateNode.cloneNode(true)
-                                    genreNode.textContent = getLocalizatedGenre(entity.genre)
-                                }
-
-                                if (entity.releaseDate && getSetting("date")) {
-                                    const date = new Date(entity.releaseDate)
-                                    const now = new Date(Date.now())
-                                    releaseDateNode.textContent = getLocalizatedDate(date)
-                                    if ((now - date)/1000/60/60/24/30 < (entity.recent ? 3 : 1)) {
-                                        const container = document.createElement("div")
-                                        container.innerHTML = 
-                                            `<svg 
-                                                class="Chart_progress__sGj4s Chart_progress_crown__o__Zm l3tE1hAMmBj2aoPPwU08 RecentAlbumIcon" 
-                                                focusable="false" 
-                                                aria-hidden="false">
-                                                    <use xlink:href="/icons/sprite.svg#chartNew_xxs">
-                                                    </use>
-                                            </svg>`
-                                        releaseDateNode.appendChild(container.firstChild)
-                                    }
-                                }
-
-                                if (genreNode) {
-                                    releaseDateNode.parentElement.append(genreNode)
-                                }
-
-                                if (entity.trackCount && getSetting("trackCount")) {
-                                    const countNode = releaseDateNode.cloneNode(true)
-                                    countNode.textContent = getPluralTrackString(entity.trackCount)
-                                    releaseDateNode.parentElement.append(countNode)
-                                }
-                            }
-                        }
-                        else if (type === "playlist") {
-                            if (entity.visibility == "private" && getSetting("private")) {    
-                                let title = node.querySelector?.(
-                                        '[data-test-id="ENTITY_TITLE"]')
-                                if (title) {
-                                    const parent = title.parentElement
-                                    parent.classList.add("titleContainer")
-
-                                    const container = document.createElement("div")
-                                    container.innerHTML = 
-                                        `<svg 
-                                        class="CommonControlsBar_ugcIcon__OV0Cl l3tE1hAMmBj2aoPPwU08" 
-                                        focusable="false" 
-                                        aria-label="Этот плейлист можете слушать только вы" 
-                                        data-test-id="UGC_PLAYLIST_ICON" 
-                                        aria-hidden="false">
-                                            <use xlink:href="/icons/sprite.svg#eye_crossed_xxs">
-                                            </use>
-                                        </svg>`
-                                    parent.appendChild(container.firstChild)
-                                }
-                            }
-
-                            let subtitleNode = node.querySelector?.(
-                                    '[data-test-id="PLAYLIST_HEADER_UPDATED_TEXT"]')
-
-                            if (subtitleNode) {
-                                subtitleNode.classList.add("betterInfoSpan")
-                                subtitleNode.innerHTML = `<div>${subtitleNode.innerHTML}</div>`
-                                subtitleNode = subtitleNode.firstChild
-
-                                if (entity.owner && entity.lastOwnerPlaylists && entity.lastOwnerPlaylists.length > 0 && getSetting("moreOwner")) {
-                                    subtitleNode.textContent = subtitleNode.textContent.replace(RegExp(`^((${entity.owner.name})|(${entity.owner.login}))`), " ")
-                                    subtitleNode.innerHTML = "&nbsp;" + subtitleNode.innerHTML
-
-                                    const container = document.createElement("div")
-                                    container.innerHTML = `<button 
-                                        class=
-                                        type="button" >
-                                        </button>`
-                                    const button = document.createElement("button")
-                                    button.classList.add("cpeagBA1_PblpJn8Xgtv", "qlPp6CSQQEMVZPqtqLiQ", "dgV08FKVLZKFsucuiryn", "IlG7b1K0AD7E7AMx6F5p", "IgYbZLnYjW0nMahgpkus", "qU2apWBO1yyEK0lZ3lPO")
-                                    button.type = "button"
-                                    button.style.overflow = "unset"
-
-                                    function onClick(entity) {
-                                        const content = document.createElement('div')
-
-                                        const albumList = document.createElement("ol")
-                                        albumList.classList.add("IZnFMW4gXBshJODnvB1P", "SkeletonBlock_container__9IxUi")
-
-                                        entity.lastOwnerPlaylists.forEach(playlist => {
-                                            const container = document.createElement('li')
-                                            container.classList.add("VJ9IexhAEuYSCyGiMfN4")
-                                            container.innerHTML = `<div
-                                                                    class="laBJlJAaqEVS0i_4Ot3l PlaylistCard_root__i3pR4"
-                                                                    >
-                                                                    <div>
-                                                                        <a
-                                                                        href="/playlists?playlistUuid=${playlist.playlistUuid}"
-                                                                        >
-                                                                            <div
-                                                                            class="qaIScXjx1qyXuaIHXQIo _7gw1qGE6BeUAdSMbhRx ZcpulvHgF_wsgzB8Hye9 gtfPudKIIbfkwmuOBzwI PlaylistCard_cover__tpK5L"
-                                                                            >
-                                                                                <div class="PlaylistCard_coverBlock__1slsN">
-                                                                                    <img
-                                                                                    class="qQ7GQU14EkggPBC6jdeS fosYvyLDok3Kjj9OWmxG PlaylistCard_image__Li6oy"
-                                                                                    alt="Плейлист ${playlist.title}"
-                                                                                    loading="eager"
-                                                                                    aria-hidden="true"
-                                                                                    data-test-id="ENTITY_COVER_IMAGE"
-                                                                                    srcset="
-                                                                                        https://${playlist.ogImage.replace("%%", "200x200")},
-                                                                                        https://${playlist.ogImage.replace("%%", "400x400")} 2x
-                                                                                    "
-                                                                                    src="https://${playlist.ogImage.replace("%%", "200x200")}"
-                                                                                    />
-                                                                                </div>
-                                                                            </div>
-                                                                        </a>
-                                                                    </div>
-                                                                    <div class="IO4kvpDGNI2J0CHwcKSf">
-                                                                        <div class="l8SktNpJd30JWp1owp_b Mb33JzAWx9EjbQAeScFt" style="min-height: var(--ym-font-line-height-label-m)">
-                                                                        <div class="LmhA6nlLyzxwYIX31gYa">
-                                                                            <div
-                                                                            class="_MWOVuZRvUQdXKTMcOPx LezmJlldtbHWqU7l1950 jMyoZB5J9iZbzJmWOrF0 mxSPe5xpZnie9gpIqacd _3_Mxw7Si7j2g4kWjlpR FAmeEGy52GX1k0xZuPDn"
-                                                                            style="-webkit-line-clamp: 2; margin-bottom: 5px"
-                                                                            >
-                                                                                <div
-                                                                                    class="_MWOVuZRvUQdXKTMcOPx LezmJlldtbHWqU7l1950 jMyoZB5J9iZbzJmWOrF0 mxSPe5xpZnie9gpIqacd _3_Mxw7Si7j2g4kWjlpR"
-                                                                                    data-test-id="PLAYLIST_TITLE"
-                                                                                    style="-webkit-line-clamp: 2"
-                                                                                >
-                                                                                    <a
-                                                                                    target="_self"
-                                                                                    rel=""
-                                                                                    class="buOTZq_TKQOVyjMLrXvB PlaylistCard_titleLink__H8qEc"
-                                                                                    href="/playlists?playlistUuid=${playlist.playlistUuid}"
-                                                                                    >${playlist.title}</a
-                                                                                    >
-                                                                                </div>
-                                                                                <div class="IgYbZLnYjW0nMahgpkus">
-                                                                                ${getPluralTrackString(playlist.trackCount)}
-                                                                                </div>
-                                                                            </div>
-                                                                        </div>
-                                                                        </div>
-                                                                    </div>
-                                                                    </div>`
-                                            albumList.appendChild(container)
-                                        })
-                                        content.appendChild(albumList)
-                                        showModal(content, "Еще плейлисты от " + entity.owner.name)
-                                    }
-                                    button.addEventListener("click", (_, e = entity) => onClick(e))
-                                    const span = document.createElement('span')
-                                    span.classList.add("_MWOVuZRvUQdXKTMcOPx", "g3qWNP6xl__7qxNmtrvd", "_3_Mxw7Si7j2g4kWjlpR")
-                                    span.textContent = entity.owner.name
-                                    button.appendChild(span)
-                                    subtitleNode.parentElement.insertBefore(button, subtitleNode.parentElement.firstChild)
-                                }
-
-                                if (entity.created && getSetting("created")) {
-                                    subtitleNode.textContent += " / создано " + getLocalizatedDate(entity.created)
-                                }
-
-                                if (entity.durationMs && entity.trackCount && getSetting("trackCount")) {
-                                    const durationNode = subtitleNode.cloneNode(true)
-                                    durationNode.style = null
-                                    durationNode.classList.remove("oyQL2RSmoNbNQf3Vc6YI")
-
-                                    const formatter = new Intl.DurationFormat('ru-RU', {style: "long"})
-                                    const seconds = Math.floor(entity.durationMs / 1000)
-                                    const duration = {
-                                        hours: Math.floor(seconds / 3600),
-                                        minutes: Math.floor((seconds % 3600) / 60),
-                                        seconds: seconds % 60
-                                        };
-                                    const durationStr = formatter.format(duration)
-
-                                    durationNode.textContent = getPluralTrackString(entity.trackCount) + " (" + durationStr + ")"
-                                    durationNode.classList.add("PageHeaderAlbumMeta_year_dot__TrSFr")
-                                    subtitleNode.parentElement.append(durationNode)
-                                }
-                            }
-                        }
-                        else if (type === "artist") {
-                            handleArtist(entity, node)
-                        }
-                });
+                    mutation.addedNodes.forEach(handleChildListMutation);
             }
             }
         });
