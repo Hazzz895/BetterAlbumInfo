@@ -1,51 +1,4 @@
 (function() {
-    let settings = getSettings();
-    function getSettings() {
-        try {
-            fetch(`http://localhost:2007/get_handle?name=BetterInfo`).then(response => {
-                if (!response.ok) throw new Error(`Ошибка сети: ${response.status}`);
-    
-                response.json().then(d => {
-                    const { data } = d
-                    if (data?.sections) {
-                        const result = {};
-                        data.sections.forEach(section => {
-                            section.items.forEach(item => {
-                                if (item.type === "text" && item.buttons) {
-                                    result[item.id] = {};
-                                    item.buttons.forEach(button => {
-                                        result[item.id][button.id] = {
-                                            value: button.text,
-                                            default: button.defaultParameter
-                                        };
-                                    });
-                                } else {
-                                    result[item.id] = {
-                                        value: item.bool || item.input || item.selected || item.value || item.filePath,
-                                        default: item.defaultParameter
-                                    };
-                                }
-                            });
-                        });
-                        settings = result
-                        updateStyles()
-                    }
-                });
-                
-            });
-            return null;
-        } catch (error) {
-            console.error(error);
-            return null;
-        }
-    }
-
-    function getSetting(name, withEntityType = true, defaultValue = true) {
-        if (!settings) return defaultValue;
-
-        const setting = (withEntityType ? lastEntity.type + "_" : "") + name
-        return settings[setting].value
-    }
 
     const style = document.createElement('style')
     document.head.append(style)
@@ -68,7 +21,7 @@
     let appRequire = null;
 
     webpackGlobal.push([
-        [Symbol("requireGetter__BetterAlbumInfo")],
+        [Symbol("requireGetter__BetterInfo")],
         {},
         (internalRequire) => {
             appRequire = internalRequire;
@@ -138,13 +91,11 @@
                     const proto = mod[key]?.prototype;
                     if (proto?.[methodName] && requiredMethods.every(m => proto[m])) {
                         hookMethod(id, methodName, hook, key);
-                        console.debug(`BetterAlbumInfo: hooked ${methodName} at module ${id} key ${key}`);
                         return true;
                     }
                 }
             } catch(e) {}
         }
-        console.error(`BetterAlbumInfo: module with method ${methodName} not found`);
         return false;
     }
 
@@ -178,6 +129,7 @@
             "entity": result
         }
         console.debug(lastEntity)
+        handleUpdate(document.body)
     }
 
     const genres = {
@@ -328,7 +280,6 @@
 
     function showModal(content, title) {
         const overlay = document.createElement('div');
-        overlay.id = 'BetterAlbumInfo_modal';
         overlay.classList.add("MorePlaylistsFromUserModal", "ifxS_8bgSnwBoCsyow0E", "t7tk8IYH3tGrhDZJpi3Z", "GKgBufCxWa9erUCTU3Fp")
 
         const modal = document.createElement('div');
@@ -373,21 +324,26 @@
 
         function getInfoNode(id, create = undefined, add = undefined, idWithEntityName = true) {
             const tag = entity.id ?? entity.playlistUuid ?? entity.artist?.id;
-            let n = node.querySelector(`[better-info-id="${(idWithEntityName ? `${entity.name}_${id}` : id)}"]` + (tag ? `[better-info-tag="${tag}"]` : ""))
+            id = idWithEntityName && type ? `${type}_${id}` : id;
+            
+            let n = document.body.querySelector(`[better-info-id="${id}"]` + (tag ? `[better-info-tag="${tag}"]` : ""));
+            
             if (!n) {
                 if (create) {
-                    n = create()
+                    n = create();
                 }
                 if (!n) return null; 
-                n.setAttribute("better-info-id", id)
+                
+                n.setAttribute("better-info-id", id);
+                
                 if (tag) {
-                    n.setAttribute("better-info-tag", tag)
+                    n.setAttribute("better-info-tag", tag);
                 }
                 if (add) {
-                    add(n)
+                    add(n);
                 }
             }
-            return n
+            return n;
         }
 
         if (type === "album") {
@@ -429,16 +385,17 @@
                     const countNode = getInfoNode("trackCount", () => releaseDateNode.cloneNode(true), node => releaseDateNode.parentElement.append(node))
                     var str = getPluralTrackString(entity.trackCount)
                     var duration = 0;
-                    entity.volumes.forEach(volume => volume.forEach(track => duration += track != null && track.durationMs != null ? track.durationMs : 0))
+                    entity.volumes.forEach(volume => volume.forEach(track => duration += (track?.durationMs != null ? track.durationMs : 0)))
+                    
                     if (duration > 0) {
                         const formatter = new Intl.DurationFormat('ru-RU', {style: "long"})
-                        const seconds = Math.floor(entity.durationMs / 1000)
-                        const duration = {
+                        const seconds = Math.floor(duration / 1000)
+                        const dur = {
                             hours: Math.floor(seconds / 3600),
                             minutes: Math.floor((seconds % 3600) / 60),
                             seconds: seconds % 60
                             };
-                        const durationStr = formatter.format(duration)
+                        const durationStr = formatter.format(dur)
                         str = str + " (" + durationStr + ")"
                     }
                     countNode.textContent = str
@@ -606,19 +563,22 @@
             if (stats?.lastMonthListenersDelta && stats?.lastMonthListenersDelta != 0 && getSetting("delta")) {
                 const monthListenersNode = node.querySelector?.(
                         '[data-test-id="ARTIST_LISTENERS_COUNT"]')
-                if (monthListenersNode && !node.querySelector('.DeltaListeners')) {
+                if (monthListenersNode) {
+                    const deltaNode = getInfoNode("delta", () => {
+                        const deltaNode = document.createElement('span')
+                        deltaNode.classList.add("g3qWNP6xl__7qxNmtrvd", "_3_Mxw7Si7j2g4kWjlpR", "DeltaListeners") 
+                        return deltaNode
+                    }, node => monthListenersNode.parentElement.appendChild(node))
                     const delta = entity.stats.lastMonthListenersDelta
-                    const deltaNode = document.createElement('span')
-                    deltaNode.classList.add("g3qWNP6xl__7qxNmtrvd", "_3_Mxw7Si7j2g4kWjlpR", "DeltaListeners")
                     if (delta > 0) {
-                        deltaNode.textContent = "+"
+                        deltaNode.classList.remove("NegativeDeltaListeners")
                         deltaNode.classList.add("PositiveDeltaListeners")
                     }
                     else {
+                        deltaNode.classList.remove("PositiveDeltaListeners")
                         deltaNode.classList.add("NegativeDeltaListeners")
                     }
-                    deltaNode.textContent += delta.toLocaleString() + " за последние 28 дней"
-                    monthListenersNode.parentElement.appendChild(deltaNode)
+                    deltaNode.textContent = (delta > 0 ? "+" : "") + delta.toLocaleString() + " за последние 28 дней"
                 }
             }
 
@@ -640,6 +600,7 @@
                         button.classList.add("kc5CjvU5hT9KEj0iTt3C")
 
                         likesNode = document.createElement("span")
+                        likesNode.setAttribute("better-info-id", "likes");
                         likesNode.classList.add("_MWOVuZRvUQdXKTMcOPx", "_oBLf5gprWsKjCw4Ce58", "_3_Mxw7Si7j2g4kWjlpR",)
                         likesNode.textContent = likes.toLocaleString()
 
@@ -768,6 +729,7 @@
                             if (!isNaN(position)) {
                                 if (!positionNode) {
                                     positionNode = document.createElement('div')
+                                    positionNode.setAttribute("better-info-id", "playlist_index");
                                     positionNode.classList.add("_MWOVuZRvUQdXKTMcOPx", "Z_WIr2W8JU4MPQek3hgR", "ZYV27jeWd30QDXu4GhaH", "PlayButtonWithPosition_position__wk3OT", "PositionIndex")
                                     node.insertBefore(positionNode, node.firstChild)
                                     const dragAndDrop = node.querySelector('.DragAndDropIcon_root__OstQU')
@@ -785,7 +747,11 @@
                 if (
                     mutation.type === "childList" && lastEntity
                 ) {
-                    mutation.addedNodes.forEach(handleUpdate);
+                    mutation.addedNodes.forEach(node => {
+                        if (node instanceof HTMLElement) {
+                            handleUpdate(node)
+                        }
+                    });
             }
             }
         });
@@ -805,6 +771,7 @@
         if (!container) return
         container.classList.add("titleContainer")
         const cntr = document.createElement('div')
+        cntr.setAttribute("better-info-id", "artist_ai")
         cntr.classList.add("aiGeneratedContainer")
         const span = document.createElement("span")
         span.textContent = "Сгенерировано ИИ"
@@ -838,4 +805,20 @@
         childList: true,
         subtree: true,
     });
+
+    const ADDON_SETTINGS = window.pulsesyncApi.getSettings("BetterInfo");
+    let settings = ADDON_SETTINGS.getCurrent();
+    ADDON_SETTINGS.onChange(s => {
+        console.debug(s)
+        settings = s;
+        updateStyles();
+        handleUpdate();
+    });
+
+    function getSetting(name, withEntityType = true, defaultValue = true) {
+        if (!settings) return defaultValue;
+
+        const setting = (withEntityType ? lastEntity.type + "_" : "") + name
+        return settings[setting].value
+    }
 })();
