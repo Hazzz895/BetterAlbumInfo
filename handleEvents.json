@@ -8,40 +8,40 @@
                     "name": "Порядковый номер треков",
                     "description": "Показывать порядковый номер треков рядом с обложкой в плейлистах",
                     "type": "button",
-                    "bool": true,
-                    "defaultParameter": true
+                    "value": true,
+                    "defaultValue": true
                 },
                 {
                     "id": "playlist_moreOwner",
                     "name": "Больше плейлистов от автора",
                     "description": "При нажатии на автора в его подзаголовке плейлиста показывать другие плейлисты от него",
                     "type": "button",
-                    "bool": true,
-                    "defaultParameter": true
+                    "value": true,
+                    "defaultValue": true
                 },
                 {
                     "id": "playlist_created",
                     "name": "Дата создания",
                     "description": "Показывать дату создания плейлиста в его подзаголовке",
                     "type": "button",
-                    "bool": true,
-                    "defaultParameter": true
+                    "value": true,
+                    "defaultValue": true
                 },
                 {
                     "id": "playlist_trackCount",
                     "name": "Количество и длительность треков",
                     "description": "Показывать количество треков и их суммарную длительность в подзаголовке плейлиста",
                     "type": "button",
-                    "bool": true,
-                    "defaultParameter": true
+                    "value": true,
+                    "defaultValue": true
                 },
                 {
                     "id": "playlist_private",
                     "name": "Иконка приватного плейлиста",
                     "description": "Показывать иконку рядом с названием плейлиста, если он приватный",
                     "type": "button",
-                    "bool": true,
-                    "defaultParameter": true
+                    "value": true,
+                    "defaultValue": true
                 }
             ]
         },
@@ -53,24 +53,24 @@
                     "name": "Жанр",
                     "description": "Показывать жанр альбома в его подзаголовке",
                     "type": "button",
-                    "bool": true,
-                    "defaultParameter": true
+                    "value": true,
+                    "defaultValue": true
                 },
                 {
                     "id": "album_date",
                     "name": "Полная дата релиза",
                     "description": "Изменять год релиза на полную дату в подзаголовке альбома",
                     "type": "button",
-                    "bool": true,
-                    "defaultParameter": true
+                    "value": true,
+                    "defaultValue": true
                 },
                 {
                     "id": "album_trackCount",
                     "name": "Количество треков",
                     "description": "Показывать количество треков альбома в его подзаголовке",
                     "type": "button",
-                    "bool": true,
-                    "defaultParameter": true
+                    "value": true,
+                    "defaultValue": true
                 }
             ]
         },
@@ -82,96 +82,104 @@
                     "name": "Изменение слушателей за месяц",
                     "description": "Показывать изменение количество слушателей артиста за последние 28 дней в его метаданных",
                     "type": "button",
-                    "bool": true,
-                    "defaultParameter": true
+                    "value": true,
+                    "defaultValue": true
                 },
                 {
                     "id": "artist_description",
                     "name": "Описание",
                     "description": "Добавляет описание артиста в его метаданные",
                     "type": "button",
-                    "bool": true,
-                    "defaultParameter": true
+                    "value": true,
+                    "defaultValue": true
                 },
                 {
                     "id": "artist_likes",
                     "name": "Количество лайков",
                     "description": "Добавляет счетчик лайков артиста рядом с кнопкой",
                     "type": "button",
-                    "bool": true,
-                    "defaultParameter": true
+                    "value": true,
+                    "defaultValue": true
+                },
+                {
+                    "id": "artist_videoBanner",
+                    "name": "Видеоклип",
+                    "description": "Добавляет клип артиста на фон его шапки",
+                    "type": "button",
+                    "value": false,
+                    "defaultValue": true
                 },
                 {
                     "id": "artist_brief",
                     "name": "Запрашивать больше информации (🛜)",
                     "description": "Отправляет дополнительный запрос в сеть при открытии страницы артиста на получение дополнительной информации. Это делает намного чаще доступными все поля ниже, которые помечены \"(если доступно)\". Когда выключено, информация для заполнения таких полей будет доступна только если приложение естественным образом запросило такую информацию ранее.",
                     "type": "button",
-                    "bool": true,
-                    "defaultParameter": true
+                    "value": true,
+                    "defaultValue": true
                 },
                 {
                     "id": "artist_albums",
                     "name": "Количество альбомов (если доступно)",
                     "description": "Добавляет количество альбомов артиста в его метаданные, если доступно",
                     "type": "button",
-                    "bool": true,
-                    "defaultParameter": true
+                    "value": true,
+                    "defaultValue": true
                 },
                 {
                     "id": "artist_date",
                     "name": "Дата рождения (если доступно)",
                     "description": "Добавляет дату рождения/регистрации артиста в его метаданные, если доступно",
                     "type": "button",
-                    "bool": true,
-                    "defaultParameter": true
+                    "value": true,
+                    "defaultValue": true
                 },
                 {
                     "id": "artist_end",
                     "name": "Дата кончины (если доступно)",
                     "description": "Добавляет дату кончины/распада артиста в его метаданные, если доступно",
                     "type": "button",
-                    "bool": true,
-                    "defaultParameter": true
+                    "value": true,
+                    "defaultValue": true
                 },
                 {
                     "id": "artist_aka",
                     "name": "Настоящее имя артиста (если доступно)",
                     "description": "Добавляет имя артиста в его метаданные, если доступно",
                     "type": "button",
-                    "bool": true,
-                    "defaultParameter": true
+                    "value": true,
+                    "defaultValue": true
                 },
                 {
                     "id": "artist_genres",
                     "name": "Жанры (если доступно)",
                     "description": "Добавляет жанры артиста в его метаданные, если доступно",
                     "type": "button",
-                    "bool": true,
-                    "defaultParameter": true
+                    "value": true,
+                    "defaultValue": true
                 },
                 {
                     "id": "artist_tracks",
                     "name": "Количество треков (если доступно)",
                     "description": "Добавляет количество треков артиста в его метаданные, если доступно",
                     "type": "button",
-                    "bool": true,
-                    "defaultParameter": true
+                    "value": true,
+                    "defaultValue": true
                 },
                 {
                     "id": "artist_country",
                     "name": "Страна (если доступно)",
                     "description": "Добавляет страны проживания (?) / исполнения артиста в его метаданные, если доступно",
                     "type": "button",
-                    "bool": true,
-                    "defaultParameter": true
+                    "value": true,
+                    "defaultValue": true
                 },
                 {
                     "id": "artist_ai",
                     "name": "ИИ-исполнитель (🛜)",
                     "description": "Добавляет к названию артиста и к его альбомам иконку, которая указывает на то, что его треки написаны нейронными сетями. Отправляет дополнительный запрос в сеть при открытии страницы артиста.",
                     "type": "button",
-                    "bool": false,
-                    "defaultParameter": false
+                    "value": false,
+                    "defaultValue": false
                 }
             ]
         }

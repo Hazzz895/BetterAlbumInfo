@@ -622,6 +622,24 @@
                 }
             }
 
+            const bannerUrl = entity.artist?.cover?.videoUrl ?? entity.backgroundVideoUrl
+            if (bannerUrl && getSetting("videoBanner")) {
+                setTimeout(() => {
+                    const bannerNode = getInfoNode("videoBanner", () => {
+                        const video = document.createElement("video")
+                        video.classList.add("VideoArtistBanner")
+                        video.setAttribute("autoplay", "true")
+                        video.setAttribute("muted", "true")
+                        video.setAttribute("loop", "true")
+                        video.setAttribute("playsinline", "true")
+                        return video
+                    }, n => node.querySelector(".PageHeaderArtist_root__QhL_a").appendChild(n));
+                    if (bannerNode.src != bannerUrl) {
+                        bannerNode.src = bannerUrl
+                    }               
+                }, 10)
+            }
+
             var fullNames = artist.fullNames == null || artist.fullNames == undefined ? null : artist.fullNames.filter(x => x != artist.name)
             if (fullNames && fullNames.length == 0) fullNames = null
 
@@ -819,6 +837,6 @@
         if (!settings) return defaultValue;
 
         const setting = (withEntityType ? lastEntity.type + "_" : "") + name
-        return settings[setting].value
+        return settings[setting]?.value ?? defaultValue
     }
 })();
