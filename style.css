@@ -105,3 +105,14 @@
     position: relative;
     display: flex;
 }
+
+.PlaylistDateNode {
+  position: absolute;
+  right: 16rem;
+  width: 11rem;
+  text-align: left;
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  top: 50%;
+  transform: translateY(-50%);
+  margin: 0;
+}

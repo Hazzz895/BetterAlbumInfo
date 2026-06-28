@@ -633,7 +633,7 @@
                         video.setAttribute("loop", "true")
                         video.setAttribute("playsinline", "true")
                         return video
-                    }, n => node.querySelector(".PageHeaderArtist_root__QhL_a").appendChild(n));
+                    }, n => node?.querySelector(".PageHeaderArtist_root__QhL_a")?.appendChild(n));
                     if (bannerNode.src != bannerUrl) {
                         bannerNode.src = bannerUrl
                     }               
@@ -737,26 +737,46 @@
             for (const mutation of mutationsList) {
                 const node = mutation.target
                 if (node instanceof HTMLElement) {
-                    if (getSetting('playlist_index', false)) {
+                    pi = getSetting('playlist_index', false);
+                    pd = getSetting('playlist_date', false);
+                    var shouldPd = pd && lastEntity?.type == "playlist" && lastEntity?.entity?.tracks?.length > 0
+                    if (pi || shouldPd) {
                         const trackNodes = node.querySelectorAll?.('div[data-index] > .PlaylistPageDnDItemWrapper_inner__UXQZf > div[data-test-id="TRACK_PLAYLIST"], div[data-index] > div[data-test-id="TRACK_PLAYLIST"]')
                         trackNodes.forEach(node => {
-                            var positionNode = node.querySelector('.PlayButtonWithPosition_position__wk3OT')
-                            const parent = node.closest('div[data-index]')
-                            const index = parent.getAttribute("data-index")
-                            const position = parseInt(index) + 1
+                            const parent = node?.closest('div[data-index]')
+                            const index = parent?.getAttribute("data-index")
+                            var position = parseInt(index)
                             if (!isNaN(position)) {
-                                if (!positionNode) {
-                                    positionNode = document.createElement('div')
-                                    positionNode.setAttribute("better-info-id", "playlist_index");
-                                    positionNode.classList.add("_MWOVuZRvUQdXKTMcOPx", "Z_WIr2W8JU4MPQek3hgR", "ZYV27jeWd30QDXu4GhaH", "PlayButtonWithPosition_position__wk3OT", "PositionIndex")
-                                    node.insertBefore(positionNode, node.firstChild)
-                                    const dragAndDrop = node.querySelector('.DragAndDropIcon_root__OstQU')
-                                    if (dragAndDrop) {
-                                        dragAndDrop.classList.add("DragAndDrop_positionIndex")
-                                        positionNode.classList.add("PositionIndex_dragAndDrop")
+                                if (pd && shouldPd && lastEntity.entity.tracks.length > position) {
+                                    const date = lastEntity?.entity?.tracks[position]?.timestamp;
+                                    if (date) {
+                                        var controlsBar = node?.querySelector('.TrackPlaylist_controlsBarCell__6clda');
+                                        var dateNode = controlsBar?.querySelector('.PlaylistDateNode')
+                                        if (controlsBar && !dateNode) {
+                                            dateNode = document.createElement('span')
+                                            dateNode.setAttribute("better-info-id", "playlist_date");
+                                            dateNode.classList.add("PlaylistDateNode", "Z_WIr2W8JU4MPQek3hgR", "_MWOVuZRvUQdXKTMcOPx");
+                                            dateNode.textContent = getLocalizatedDate(date);
+                                            controlsBar.insertBefore(dateNode, controlsBar.firstChild)
+                                        }
                                     }
                                 }
-                                positionNode.textContent = position.toLocaleString()
+                                if (pi) {
+                                    position += 1;
+                                    var positionNode = node.querySelector('.PlayButtonWithPosition_position__wk3OT')
+                                    if (!positionNode) {
+                                        positionNode = document.createElement('div')
+                                        positionNode.setAttribute("better-info-id", "playlist_index");
+                                        positionNode.classList.add("_MWOVuZRvUQdXKTMcOPx", "Z_WIr2W8JU4MPQek3hgR", "ZYV27jeWd30QDXu4GhaH", "PlayButtonWithPosition_position__wk3OT", "PositionIndex")
+                                        node.insertBefore(positionNode, node.firstChild)
+                                        const dragAndDrop = node.querySelector('.DragAndDropIcon_root__OstQU')
+                                        if (dragAndDrop) {
+                                            dragAndDrop.classList.add("DragAndDrop_positionIndex")
+                                            positionNode.classList.add("PositionIndex_dragAndDrop")
+                                        }
+                                    }
+                                    positionNode.textContent = position.toLocaleString()
+                                }
                             }
                         })
                     }
@@ -834,9 +854,9 @@
     });
 
     function getSetting(name, withEntityType = true, defaultValue = true) {
-        if (!settings) return defaultValue;
+        if (!settings || (withEntityType && !lastEntity)) return defaultValue;
 
-        const setting = (withEntityType ? lastEntity.type + "_" : "") + name
+        const setting = (withEntityType ? lastEntity?.type + "_" : "") + name
         return settings[setting]?.value ?? defaultValue
     }
 })();
