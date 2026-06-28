@@ -2,7 +2,7 @@
     "name": "BetterInfo",
     "author": "Hazzz895",
     "description": "Добавляет больше информации о исполнителях, треках и альбомах.",
-    "version": "2.1.0",
+    "version": "2.2.0",
     "script": "script.js",
     "css": "style.css",
     "type": "script",
