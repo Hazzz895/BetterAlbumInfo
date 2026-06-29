@@ -109,10 +109,14 @@
 .PlaylistDateNode {
   position: absolute;
   right: 18rem;
-  width: 11rem;
+  width: 8rem;
   text-align: right;
-  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-  top: 50%;
-  transform: translateY(-50%);
-  margin: 0;
+  white-space: nowrap;
+  overflow: clip;
+}
+
+.TrackPlaylist_controlsBarCell__6clda:has(> .PlaylistDateNode) {
+  flex: 0 0 26rem;
+  justify-content: flex-end; 
+  position: relative;
 }
