@@ -1,24 +1,28 @@
 {
-    "name": "BetterInfo",
-    "author": "Hazzz895",
-    "description": "Добавляет больше информации о исполнителях, треках и альбомах.",
-    "version": "2.2.1",
-    "script": "script.js",
-    "css": "style.css",
-    "type": "script",
-    "image": "image.png",
-    "tags": [
-        "Script",
-        "Utility"
-    ],
-    "supportedVersions": [
-        "5.75.2",
-        "5.90.0"
-    ],
-    "allowedUrls": [
-        "https://iimuzyka.top"
-    ],
-    "installSource": "local",
-    "id": "8270a15cc5dc520af9db5d8d",
-    "storeAddonId": "362c2dca-d955-4663-aa00-7f84dd47168b"
+  "name": "BetterInfo",
+  "image": "image.png",
+  "banner": "",
+  "libraryLogo": "",
+  "author": "Hazzz895",
+  "description": "Добавляет больше информации о исполнителях, плейлистах и альбомах.",
+  "version": "2.2.1",
+  "css": "style.css",
+  "script": "script.js",
+  "type": "script",
+  "tags": [
+    "Script",
+    "Utility"
+  ],
+  "dependencies": [],
+  "conflictsWith": [],
+  "allowedUrls": [
+    "https://iimuzyka.top"
+  ],
+  "supportedVersions": [
+    "5.75.2",
+    "5.90.0"
+  ],
+  "installSource": "local",
+  "id": "8270a15cc5dc520af9db5d8d",
+  "storeAddonId": "362c2dca-d955-4663-aa00-7f84dd47168b"
 }
