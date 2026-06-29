@@ -535,7 +535,7 @@
                 }
 
                 if (entity.durationMs && entity.trackCount && getSetting("trackCount")) {
-                    const durationNode = getInfoNode("duration", () => {
+                    const durationNode = getInfoNode("trackCount", () => {
                         const d = subtitleNode.cloneNode(true)
                         d.style = null
                         d.classList.remove("oyQL2RSmoNbNQf3Vc6YI")
