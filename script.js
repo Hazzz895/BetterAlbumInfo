@@ -269,7 +269,7 @@
 
         const dateStr = date.toLocaleDateString('ru-RU', rtf);
 
-        return withTime && diffDays > -364 ? `${dateStr} ${timeStr}` : dateStr;
+        return withTime && date.getFullYear() === now.getFullYear() ? `${dateStr} ${timeStr}` : dateStr;
     }
 
 
