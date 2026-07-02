@@ -1,5 +1,4 @@
 (function() {
-
     const style = document.createElement('style')
     document.head.append(style)
     function updateStyles() {
@@ -524,7 +523,7 @@
                                                                 >
                                                                     <a
                                                                     target="_self"
-                                                                    rel=""
+                                                                    rel
                                                                     class="buOTZq_TKQOVyjMLrXvB PlaylistCard_titleLink__H8qEc"
                                                                     href="/playlists?playlistUuid=${playlist.playlistUuid}"
                                                                     >${playlist.title}</a
@@ -541,7 +540,7 @@
                             albumList.appendChild(container)
                         })
                         content.appendChild(albumList)
-                        showModal(content, "Еще плейлисты от " + entity.owner.name)
+                        showModal(content, "Ещ` плейлисты от " + entity.owner.name)
                     }
                     button.addEventListener("click", (_, e = entity) => onClick(e))
                     const span = document.createElement('span')
@@ -777,7 +776,7 @@
                                             dateNode = document.createElement('span')
                                             dateNode.setAttribute("better-info-id", "playlist_date");
                                             dateNode.classList.add("PlaylistDateNode", "Z_WIr2W8JU4MPQek3hgR", "_MWOVuZRvUQdXKTMcOPx");
-                                            dateNode.textContent = getLocalizatedDate(date);
+                                            dateNode.textContent = getLocalizatedDate(date, true);
                                             controlsBar.insertBefore(dateNode, controlsBar.firstChild)
                                         }
                                     }
