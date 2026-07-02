@@ -240,16 +240,37 @@
         return getPluralString(num, "альбом")
     }
 
-    function getLocalizatedDate(date) {
-        if (!(date instanceof Date)) {
-            date = new Date(date)
+    function getLocalizatedDate(dateInput, withTime = false) {
+        let date = dateInput instanceof Date ? dateInput : new Date(dateInput);
+
+        const now = new Date();
+
+        const targetDay = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+        const todayDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        
+        const diffTime = targetDay - todayDay;
+        const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+
+        const timeStr = date.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+
+        if (diffDays === 0) {
+            return withTime ? `сегодня в ${timeStr}` : 'сегодня';
+        } else if (diffDays === -1) {
+            return withTime ? `вчера в ${timeStr}` : 'вчера';
         }
 
-        return date.toLocaleDateString('ru-RU',{
-                day: 'numeric',
-                month: 'long',   
-                year:  date.getFullYear() == new Date(Date.now()).getFullYear() ? undefined : 'numeric',
-            })
+        const rtf = {
+            day: 'numeric',
+            month: 'long',
+        };
+
+        if (date.getFullYear() !== now.getFullYear()) {
+            rtf.year = 'numeric';
+        }
+
+        const dateStr = date.toLocaleDateString('ru-RU', rtf);
+
+        return withTime && diffDays > -364 ? `${dateStr} ${timeStr}` : dateStr;
     }
 
 
