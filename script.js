@@ -572,7 +572,7 @@
                     const durationStr = formatter.format(duration)
 
                     durationNode.textContent = getPluralTrackString(entity.trackCount) + " (" + durationStr + ")"
-                    durationNode.classList.add("PageHeaderAlbumMeta_year_dot__TrSFr")
+                    durationNode.classList.add("BetterInfo_infoSplit")
                 }
             }
         }
@@ -696,7 +696,7 @@
                                     }
 
                                     if (betterInfoSpan.childElementCount > 0) {
-                                        node.classList.add("PageHeaderAlbumMeta_year_dot__TrSFr")
+                                        node.classList.add("BetterInfo_infoSplit")
                                     }
                                     return node;
                                 }, node => betterInfoSpan.appendChild(node))

@@ -120,3 +120,15 @@
   justify-content: flex-end; 
   position: relative;
 }
+
+.BetterInfo_infoSplit:before {
+    background-color: var(--ym-controls-color-primary-text-enabled);
+    border-radius: var(--ym-radius-size-round);
+    content: '';
+    height: 0.25rem;
+    margin-block-end: var(--ym-spacer-size-xxxs);
+    margin-inline-end: var(--ym-spacer-size-m);
+    margin-inline-start: var(--ym-spacer-size-m);
+    width: 0.25rem;
+    display: inline-block;
+}
