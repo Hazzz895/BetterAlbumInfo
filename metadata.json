@@ -5,7 +5,7 @@
   "libraryLogo": "",
   "author": "Hazzz895",
   "description": "Добавляет больше информации о исполнителях, плейлистах и альбомах.",
-  "version": "2.2.1",
+  "version": "2.2.2",
   "css": "style.css",
   "script": "script.js",
   "type": "script",
