@@ -644,20 +644,27 @@
 
             const bannerUrl = entity.artist?.cover?.videoUrl ?? entity.backgroundVideoUrl
             if (bannerUrl && getSetting("videoBanner")) {
-                setTimeout(() => {
-                    const bannerNode = getInfoNode("videoBanner", () => {
-                        const video = document.createElement("video")
-                        video.classList.add("VideoArtistBanner")
-                        video.setAttribute("autoplay", "true")
-                        video.setAttribute("muted", "true")
-                        video.setAttribute("loop", "true")
-                        video.setAttribute("playsinline", "true")
-                        return video
-                    }, n => node?.querySelector(".PageHeaderArtist_root__QhL_a")?.appendChild(n));
-                    if (bannerNode.src != bannerUrl) {
-                        bannerNode.src = bannerUrl
-                    }               
-                }, 10)
+                const tag = String(artist.id)
+                let video = document.body.querySelector(`.VideoArtistBanner[better-info-tag="${tag}"]`)
+
+                if (!video) {
+                    const root = document.querySelector(".PageHeaderArtist_root__QhL_a:not(:has(.VideoArtistBanner))")
+                    if (!root) return
+
+                    video = document.createElement("video")
+                    video.classList.add("VideoArtistBanner")
+                    video.setAttribute("better-info-tag", tag)
+                    video.setAttribute("better-info-id", "artist_videoBanner")
+                    video.setAttribute("autoplay", "true")
+                    video.setAttribute("muted", "true")
+                    video.setAttribute("loop", "true")
+                    video.setAttribute("playsinline", "true")
+                    root.appendChild(video)
+                }
+
+                if (video.src !== bannerUrl) {
+                    video.src = bannerUrl
+                }
             }
 
             var fullNames = artist.fullNames == null || artist.fullNames == undefined ? null : artist.fullNames.filter(x => x != artist.name)
